@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -474,3 +475,481 @@
 
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>中庭｜群體聊天</title>
+  <link rel="icon" href="Midcourt_Favicon.ico" type="image/x-icon" />
+  <style>
+    :root {
+      --ok: #5dffb0;
+      --err: #ff6a6a;
+    }
+    html, body {
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #101820 0%, #0b0b0b 45%, #000 100%);
+      color: #fff;
+      font-family: "標楷體", "Times New Roman", serif;
+    }
+    /* 左側固定欄 */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 22vw;
+      max-width: 300px;
+      min-width: 230px;
+      background: linear-gradient(160deg, rgba(0,0,0,0.7), rgba(0,0,0,0.05));
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 16px 16px 14px;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+    .title { font-size: 1.05rem; letter-spacing: 0.08em; }
+    .label { font-size: 0.7rem; opacity: 0.55; margin-top: 4px; }
+    .value { font-size: 0.9rem; word-break: break-all; }
+
+    .status-pill {
+      margin-top: 6px;
+      font-size: 0.7rem;
+      padding: 3px 10px 4px;
+      border-radius: 999px;
+      align-self: flex-start;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .status-ok {
+      background: rgba(93,255,176,0.12);
+      border-color: rgba(93,255,176,0.4);
+      color: #dfffef;
+    }
+    .status-err {
+      background: rgba(255,80,80,0.15);
+      border-color: rgba(255,110,110,0.4);
+      color: #ffeaea;
+    }
+    .char-list {
+      margin-top: 4px;
+      flex: 1;
+      overflow-y: auto;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 6px;
+    }
+    .char-item {
+      font-size: 0.72rem;
+      padding: 4px 6px;
+      margin-bottom: 3px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid transparent;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .char-item.active {
+      background: rgba(66,255,169,0.12);
+      border-color: rgba(66,255,169,0.4);
+    }
+    .char-rank {
+      font-size: 0.62rem;
+      opacity: 0.5;
+    }
+    .back-link {
+      margin-top: auto;
+      font-size: 0.65rem;
+    }
+    .back-link a {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* 右側聊天欄 */
+    .chat-panel {
+      position: relative;
+      margin-left: 22vw;
+      max-width: calc(100% - 22vw);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .chat-header {
+      flex: 0 0 auto;
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      background: radial-gradient(circle at 35% 40%, rgba(255,180,0,0.16) 0%, rgba(0,0,0,0) 45%);
+    }
+    .chat-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .chat-body {
+      flex: 1 1 auto;
+      padding: 14px 16px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+    }
+    .msg {
+      max-width: 72%;
+      padding: 8px 12px 9px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .msg.me {
+      align-self: flex-end;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .msg.npc {
+      align-self: flex-start;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,83,83,0.25);
+    }
+    .msg .from {
+      display: block;
+      font-size: 0.62rem;
+      opacity: 0.5;
+      margin-bottom: 2px;
+    }
+
+    /* 下方輸入欄 */
+    .chat-input-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 10px 9px 10px;
+      background: rgba(0,0,0,0.35);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      height: 62px;
+      box-sizing: border-box;
+    }
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+      height: 100%;
+    }
+    .chat-textarea {
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 6px 6px 16px;
+      resize: none;
+      outline: none;
+      line-height: 1.35;
+      overflow-y: auto;
+    }
+    .hint {
+      position: absolute;
+      right: 6px;
+      bottom: 1px;
+      font-size: 0.58rem;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .send-btn {
+      background: #ffb027;
+      border: none;
+      color: #000;
+      padding: 7px 15px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      min-width: 60px;
+      height: 38px;
+    }
+    .send-btn:hover { background: #ffd27e; }
+
+    @media (max-width: 800px) {
+      .sidebar { display: none; }
+      .chat-panel { margin-left: 0; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 左側群體狀態欄 -->
+  <aside class="sidebar">
+    <div class="title">中庭 群體狀態</div>
+    <div>
+      <div class="label">已載入角色數</div>
+      <div class="value" id="loaded-count">0</div>
+    </div>
+    <div>
+      <div class="label">目前發話角色</div>
+      <div class="value" id="current-speaker">（自動）</div>
+    </div>
+    <div id="sb-status" class="status-pill">正在載入全部…</div>
+
+    <div class="label" style="margin-top:6px;">角色清單</div>
+    <div class="char-list" id="char-list">
+      <!-- 動態塞角色 -->
+    </div>
+
+    <div class="back-link">
+      <a href="about.html">← 回到中庭介紹</a>
+    </div>
+  </aside>
+
+  <!-- 右側聊天欄 -->
+  <section class="chat-panel">
+    <div class="chat-header">
+      <h2>群體聊天（GEX + GN + LNM + NE）</h2>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <!-- 訊息 -->
+    </div>
+    <div class="chat-input-bar">
+      <div class="input-wrapper">
+        <textarea id="chat-input" class="chat-textarea" placeholder="輸入訊息…（Enter=送出 / Shift+Enter=換行 /help 看指令）"></textarea>
+        <div class="hint">Enter=送出 · Shift+Enter=換行</div>
+      </div>
+      <button class="send-btn" id="send-btn">送出</button>
+    </div>
+  </section>
+
+  <!-- 這裡才是你原本那大坨 JS -->
+  
+   <script>
+  // ===== 使用者狀態 =====
+  const USER = {
+    id: "LOCAL-USER",
+    name: "來訪者",
+    mood: "neutral",
+    context: [],
+  };
+
+  // 所有角色
+  let ALL_CHARS = [];
+  let currentSpeaker = null; // 手動點的時候用
+
+  const sbStatus     = document.getElementById("sb-status");
+  const loadedCount  = document.getElementById("loaded-count");
+  const currentSpeakerEl = document.getElementById("current-speaker");
+  const charListEl   = document.getElementById("char-list");
+  const chatBody     = document.getElementById("chat-body");
+  const chatInput    = document.getElementById("chat-input");
+  const sendBtn      = document.getElementById("send-btn");
+
+  async function loadAllCharacters() {
+    const urls = [
+      "https://vileding8991-ux.github.io/GEX.json",
+      "https://vileding8991-ux.github.io/GN.json",
+      "https://vileding8991-ux.github.io/LNM.json",
+      "https://vileding8991-ux.github.io/NE.json"
+    ];
+
+    try {
+      const results = await Promise.all(
+        urls.map(u => fetch(u).then(r => r.json()).catch(() => []))
+      );
+      ALL_CHARS = results.flat().filter(Boolean);
+      loadedCount.textContent = ALL_CHARS.length;
+      sbStatus.textContent = "全部載入成功";
+      sbStatus.classList.add("status-ok");
+      renderCharList();
+      addNpcMsg("【系統】群體頻道已啟動。你說一句，他們會回幾句，然後等你。");
+      // ← 這裡故意不再呼叫 autoChatter()
+    } catch (err) {
+      console.error(err);
+      sbStatus.textContent = "載入失敗";
+      sbStatus.classList.add("status-err");
+      addNpcMsg("【系統】角色清單載入失敗，請檢查 JSON 是否公開。");
+    }
+  }
+
+  function renderCharList() {
+    charListEl.innerHTML = "";
+    ALL_CHARS.forEach(ch => {
+      const div = document.createElement("div");
+      div.className = "char-item";
+      div.dataset.id = ch.ID;
+      div.innerHTML = `
+        <span>${ch["ZH-Name"] || ch["EN-Name"] || ch.ID}</span>
+        <span class="char-rank">${ch.Rank || "NE"}</span>
+      `;
+      div.addEventListener("click", () => {
+        currentSpeaker = ch;
+        currentSpeakerEl.textContent = (ch["ZH-Name"] || ch["EN-Name"] || ch.ID);
+        document.querySelectorAll(".char-item").forEach(e => e.classList.remove("active"));
+        div.classList.add("active");
+        addNpcMsg(`【系統】你已指定 ${ch["ZH-Name"] || ch["EN-Name"] || ch.ID} 作為下一位發話者。`);
+      });
+      charListEl.appendChild(div);
+    });
+  }
+
+  // ===== 訊息 helper =====
+  function addMsg(text, who = "me") {
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + who;
+    wrap.textContent = text;
+    chatBody.appendChild(wrap);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+  function addNpcMsg(text, fromName) {
+    const wrap = document.createElement("div");
+    wrap.className = "msg npc";
+    if (fromName) {
+      wrap.innerHTML = `<span class="from">${fromName}</span>${text}`;
+    } else {
+      wrap.textContent = text;
+    }
+    chatBody.appendChild(wrap);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  // ===== 假文池 =====
+  const AUTO_LINES = [
+    "巡邏線穩定，東側黑火還在燒。",
+    "剛剛有一隻嘎嘎鼴鼠從地底鑽過去，忽略它。",
+    "中庭資料層回報：丁還是本日最高權限。",
+    "誰又把我名字寫成 D 了？手借我用一下。",
+    "塔塔嘎在屋頂叫，我先去關一下喉嚨。",
+    "冥界 L-21 溫泉區 OK，可以下去泡。",
+    "桃花說你要吃飯，不吃她要抽人了。",
+    "瑞卡：『家務也要紀律。』",
+    "Ghost 在影子裡，別叫他，他在看你。",
+    "Atis：『我在。』",
+    "莉亞把你的記憶翻了一頁，說這頁比較好看。",
+    "蛆蛆說她不是故意被召來的。",
+    "咕咕：吱。"
+  ];
+  function randomLine() {
+    return AUTO_LINES[Math.floor(Math.random() * AUTO_LINES.length)];
+  }
+
+  // ===== 指令 =====
+  async function handleCommand(input) {
+    const parts = input.trim().split(/\s+/);
+    const cmd = parts.shift().toLowerCase();
+    switch (cmd) {
+      case "/help":
+        addNpcMsg([
+          "指令：",
+          "/help → 顯示指令",
+          "/list → 顯示目前載入角色數",
+          "/stop → 清除畫面",
+          "/rand → 隨機切發話角色"
+        ].join("\n"), "系統");
+        break;
+      case "/list":
+        addNpcMsg("目前載入角色數：" + ALL_CHARS.length, "系統");
+        break;
+      case "/stop":
+        chatBody.innerHTML = "";
+        addNpcMsg("畫面已清除。", "系統");
+        break;
+      case "/rand":
+        pickRandomSpeaker(true);
+        break;
+      default:
+        addNpcMsg("未知指令：" + cmd, "系統");
+    }
+  }
+
+  function pickRandomSpeaker(showMsg = false) {
+    if (!ALL_CHARS.length) return null;
+    const ch = ALL_CHARS[Math.floor(Math.random() * ALL_CHARS.length)];
+    currentSpeaker = ch;
+    currentSpeakerEl.textContent = (ch["ZH-Name"] || ch["EN-Name"] || ch.ID);
+    document.querySelectorAll(".char-item").forEach(e => {
+      e.classList.toggle("active", e.dataset.id === ch.ID);
+    });
+    if (showMsg) addNpcMsg(`隨機選中了：${ch["ZH-Name"] || ch["EN-Name"] || ch.ID}`, "系統");
+    return ch;
+  }
+
+  // ===== 送出訊息（這裡才是你要的 3~5 次）=====
+  function sendCurrent() {
+    const raw = chatInput.value;
+    const txt = raw.trim();
+    if (!txt) return;
+
+    // 指令
+    if (txt.startsWith("/")) {
+      addMsg(txt, "me");
+      chatInput.value = "";
+      handleCommand(txt);
+      return;
+    }
+
+    // 使用者說話
+    addMsg(txt, "me");
+    chatInput.value = "";
+
+    // 隨機讓 3～5 個角色回覆
+    let replyCount = Math.floor(3 + Math.random() * 3); // 3~5
+    let delay = 400;
+    const used = new Set();
+
+    function queueReply() {
+      if (replyCount <= 0) return;
+      replyCount--;
+
+      let who = pickRandomSpeaker(false);
+      if (!who) return;
+
+      // 避免同一隻一直講
+      if (used.has(who.ID) && used.size < ALL_CHARS.length) {
+        return queueReply();
+      }
+      used.add(who.ID);
+
+      const name = who["ZH-Name"] || who["EN-Name"] || who.ID || "某人";
+      const line = randomLine();
+
+      setTimeout(() => {
+        addNpcMsg(line, name);
+        queueReply();
+      }, delay);
+
+      delay += 900 + Math.random() * 1200;
+    }
+
+    queueReply();
+  }
+
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      if (e.shiftKey) return;
+      e.preventDefault();
+      sendCurrent();
+    }
+  });
+  sendBtn.addEventListener("click", sendCurrent);
+
+  // 起手拉全部
+  loadAllCharacters();
+</script>
+
+</body>
+</html>
+>>>>>>> origin/root

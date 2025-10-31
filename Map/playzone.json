@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "Type": "娛樂浮島",
   "Portals": [
@@ -9,3 +10,16 @@
   "Hazard-Level": "低"
 }
 
+=======
+{
+  "Type": "娛樂浮島",
+  "Portals": [
+    {"To": "中央中庭浮島", "Coordinates": [8, -18, 5]},
+    {"To": "地底層結構", "Coordinates": [-12, 8, -5]}
+  ],
+  "Description": "充滿燈光與音樂的遊樂浮島，擁有泳池、夜市、遊戲廳與嘎嘎打地鼠區。",
+  "Residents": ["布雷崽", "嘎嘎隊", "金魚"],
+  "Hazard-Level": "低"
+}
+
+>>>>>>> origin/root

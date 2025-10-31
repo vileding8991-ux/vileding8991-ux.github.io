@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
   {
     "Rank": "GN",
@@ -115,3 +116,122 @@
     "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000026-PEACH.json"
   }
 ]
+=======
+[
+  {
+    "Rank": "GN",
+    "ID": "GN-000005-LUCA",
+    "ZH-Name": "魯卡蒂斯",
+    "EN-Name": "Lucatis",
+    "Race": "幼蛇體／亞蒂斯與路西恩之子",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000005-LUCA.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000006-BRULEE",
+    "ZH-Name": "布雷崽",
+    "EN-Name": "Brûlée",
+    "Race": "甜點型史萊姆／危險可愛物種",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000006-BRULEE.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000007-GUGU",
+    "ZH-Name": "咕咕",
+    "EN-Name": "Gugu",
+    "Race": "小灰鼠／寵伴型生物",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000007-GUGU.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000008-GRNPA",
+    "ZH-Name": "軒轅·承嶽",
+    "EN-Name": "Grandpa Xuan Yuan Chengyue",
+    "Race": "銀龍／長者",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000008-GRNPA.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000009-GRNMA",
+    "ZH-Name": "軒轅·寧華",
+    "EN-Name": "Grandma Xuan Yuan Ninghua",
+    "Race": "金龍／長者",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000009-GRNMA.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000010-MAGGY",
+    "ZH-Name": "蛆蛆",
+    "EN-Name": "WuWu",
+    "Race": "冥界浮島靈體／防禦型生命",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000010-MAGGY.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000013-LIN",
+    "ZH-Name": "林越",
+    "EN-Name": "Lin Yue",
+    "Race": "骨龍／黑色東方骨龍",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000013-LIN.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000014-NDK",
+    "ZH-Name": "北龍王",
+    "EN-Name": "Northern Dragon King",
+    "Race": "真龍／北域主龍",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000014-NDK.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000015-GAGA",
+    "ZH-Name": "嘎嘎怪分身群",
+    "EN-Name": "Gaga Entity Collective",
+    "Race": "靈異分身／嘎嘎系統體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000015-GAGA.json",
+    "DBO": "True"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000021-GAGAMOLES",
+    "ZH-Name": "嘎嘎鼴鼠",
+    "EN-Name": "Gaga Moles",
+    "Race": "地下靈異分支／嘎嘎系統體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000021-GAGAMOLES.json",
+    "DBO": "True"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000022-TTG",
+    "ZH-Name": "塔塔嘎",
+    "EN-Name": "Gaga Tower",
+    "Race": "靈異建築體／嘎嘎分身",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000022-TTG.json",
+    "DBO": "True"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000024-POPFISH",
+    "ZH-Name": "漂浮金魚群",
+    "EN-Name": "Emofi Fish Cluster",
+    "Race": "情緒寵物群／靈光體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000024-POPFISH.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000025-CHUCHU-WOOD01",
+    "ZH-Name": "木盾丘丘暴徒",
+    "EN-Name": "Wood Shield Hilichurl",
+    "Race": "外聯野獸系／中庭守衛",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000025-CHUCHU-WOOD01.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000026-PEACH",
+    "ZH-Name": "桃花姊姊",
+    "EN-Name": "Peach Spirit",
+    "Race": "千年桃花仙／暴力花靈",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000026-PEACH.json"
+  }
+]
+>>>>>>> origin/root

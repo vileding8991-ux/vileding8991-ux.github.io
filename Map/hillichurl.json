@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "Type": "丘丘聚落",
   "Portals": [
@@ -8,3 +9,15 @@
   "Hazard-Level": "中"
 }
 
+=======
+{
+  "Type": "丘丘聚落",
+  "Portals": [
+    {"To": "中央中庭浮島", "Coordinates": [15, -35, 2]}
+  ],
+  "Description": "丘丘人市集核心地段，由木盾丘丘暴徒帶領。盾舞儀式與市集生活並行。",
+  "Residents": ["木盾丘丘暴徒", "丘丘族群"],
+  "Hazard-Level": "中"
+}
+
+>>>>>>> origin/root

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -442,3 +443,449 @@
   </script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>中庭｜單人聊天</title>
+  <link rel="icon" href="Midcourt_Favicon.ico" type="image/x-icon" />
+  <style>
+    :root {
+      --bg1: #1b1b1b;
+      --bg2: #101820;
+      --ok: #5dffb0;
+      --err: #ff6a6a;
+    }
+    /* 整頁鎖高，右邊才會自己捲 */
+    html, body {
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, var(--bg2) 0%, #0b0b0b 45%, #000 100%);
+      color: #fff;
+      font-family: "標楷體", "Times New Roman", serif;
+    }
+
+    /* 左側固定欄（不跟著捲）*/
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 22vw;
+      max-width: 300px;
+      min-width: 230px;
+      background: linear-gradient(160deg, rgba(0,0,0,0.7), rgba(0,0,0,0.05));
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 16px 16px 14px;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+    .title { font-size: 1.05rem; letter-spacing: 0.08em; }
+    .label { font-size: 0.7rem; opacity: 0.55; margin-top: 4px; }
+    .value { font-size: 0.9rem; word-break: break-all; }
+    .status-pill {
+      margin-top: 6px;
+      font-size: 0.7rem;
+      padding: 3px 10px 4px;
+      border-radius: 999px;
+      align-self: flex-start;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .status-ok {
+      background: rgba(93,255,176,0.12);
+      border-color: rgba(93,255,176,0.4);
+      color: #dfffef;
+    }
+    .status-err {
+      background: rgba(255,80,80,0.15);
+      border-color: rgba(255,110,110,0.4);
+      color: #ffeaea;
+    }
+    .back-link {
+      margin-top: auto;
+      font-size: 0.65rem;
+    }
+    .back-link a {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* 右側聊天區：要讓出左邊的寬度 */
+    .chat-panel {
+      position: relative;
+      margin-left: 22vw;         /* ← 留出左欄空間 */
+      max-width: calc(100% - 22vw);
+      height: 100vh;             /* ← 右邊自己也要滿高 */
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .chat-header {
+      flex: 0 0 auto;
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      background: radial-gradient(circle at 35% 40%, rgba(255,0,85,0.2) 0%, rgba(0,0,0,0) 45%);
+    }
+    .chat-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    /* 中間可捲的聊天內容 */
+    .chat-body {
+      flex: 1 1 auto;
+      padding: 14px 16px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;          /* ← 只讓這裡捲 */
+      min-height: 0;             /* ← 防 overflow */
+    }
+    .msg {
+      max-width: 68%;
+      padding: 8px 12px 9px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .msg.me {
+      align-self: flex-end;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .msg.npc {
+      align-self: flex-start;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,0,85,0.2);
+    }
+
+    /* 下方輸入欄：固定在右下，不捲走 */
+    .chat-input-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 10px 9px 10px;
+      background: rgba(0,0,0,0.35);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      height: 62px;              /* ← 你嫌太高就改這裡 */
+      box-sizing: border-box;
+    }
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+      height: 100%;
+    }
+    .chat-textarea {
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 6px 6px 16px;
+      resize: none;
+      outline: none;
+      line-height: 1.35;
+      overflow-y: auto;
+    }
+    .hint {
+      position: absolute;
+      right: 6px;
+      bottom: 1px;
+      font-size: 0.58rem;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .send-btn {
+      background: #2bbf72;
+      border: none;
+      color: #000;
+      padding: 7px 15px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      min-width: 60px;
+      height: 38px;
+    }
+    .send-btn:hover { background: #5cf5a2; }
+
+    @media (max-width: 800px) {
+      .sidebar {
+        display: none;
+      }
+      .chat-panel {
+        margin-left: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 左邊固定欄 -->
+  <aside class="sidebar">
+    <div class="title">中庭 狀態</div>
+
+    <div>
+      <div class="label">目前角色 ID</div>
+      <div class="value" id="sb-id">（尚未載入）</div>
+    </div>
+
+    <div>
+      <div class="label">中文名稱</div>
+      <div class="value" id="sb-zh">—</div>
+    </div>
+
+    <div>
+      <div class="label">Race</div>
+      <div class="value" id="sb-race">—</div>
+    </div>
+
+    <div>
+      <div class="label">Referenced-resources</div>
+      <div class="value" id="sb-ref">—</div>
+    </div>
+
+    <div id="sb-status" class="status-pill">等待載入…</div>
+
+    <div class="back-link">
+      <a href="solo.html">← 回角色列表</a>
+    </div>
+  </aside>
+
+  <!-- 右邊聊天欄 -->
+  <section class="chat-panel">
+    <div class="chat-header">
+      <h2 id="chat-title">單人聊天</h2>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <!-- 訊息會被塞進來 -->
+    </div>
+    <div class="chat-input-bar">
+      <div class="input-wrapper">
+        <textarea id="chat-input" class="chat-textarea" placeholder="輸入訊息…（Enter=送出 / Shift+Enter=換行 /help 看指令）"></textarea>
+        <div class="hint">Enter=送出 · Shift+Enter=換行</div>
+      </div>
+      <button class="send-btn" id="send-btn">送出</button>
+    </div>
+  </section>
+
+  <script>
+    const USER = {
+      id: "LOCAL-USER",
+      name: "來訪者",
+      mood: "neutral",
+      context: [],
+    };
+    let CHAR = {
+      id: null,
+      zh: null,
+      en: null,
+      race: null,
+      ref: null,
+      rank: null,
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const urlId = params.get("id");
+    const urlRank = params.get("rank");
+
+    const sbId    = document.getElementById("sb-id");
+    const sbZh    = document.getElementById("sb-zh");
+    const sbRace  = document.getElementById("sb-race");
+    const sbRef   = document.getElementById("sb-ref");
+    const sbStatus= document.getElementById("sb-status");
+    const chatTitle = document.getElementById("chat-title");
+    const chatBody  = document.getElementById("chat-body");
+    const chatInput = document.getElementById("chat-input");
+    const sendBtn   = document.getElementById("send-btn");
+
+    if (urlId) sbId.textContent = urlId;
+
+    function getListUrl(rank) {
+      if (rank === "GEX") return "https://vileding8991-ux.github.io/GEX.json";
+      if (rank === "GN")  return "https://vileding8991-ux.github.io/GN.json";
+      if (rank === "LNM") return "https://vileding8991-ux.github.io/LNM.json";
+      return null;
+    }
+
+    async function loadCharacterById(id, rank) {
+      const singleUrl = getListUrl(rank);
+      try {
+        let lists = [];
+        if (singleUrl) {
+          const res = await fetch(singleUrl);
+          lists = await res.json();
+        } else {
+          const [gex, gn, lnm] = await Promise.all([
+            fetch("https://vileding8991-ux.github.io/GEX.json").then(r => r.json()).catch(() => []),
+            fetch("https://vileding8991-ux.github.io/GN.json").then(r => r.json()).catch(() => []),
+            fetch("https://vileding8991-ux.github.io/LNM.json").then(r => r.json()).catch(() => [])
+          ]);
+          lists = [...gex, ...gn, ...lnm];
+        }
+
+        const found = lists.find(item => item.ID === id);
+        if (!found) {
+          sbStatus.textContent = "載入失敗：找不到角色";
+          sbStatus.classList.add("status-err");
+          addSystemMsg("找不到這個 ID：" + id);
+          return null;
+        }
+
+        CHAR = {
+          id: found.ID,
+          zh: found["ZH-Name"] || "",
+          en: found["EN-Name"] || "",
+          race: found["Race"] || "",
+          ref: found["Referenced-resources"] || "",
+          rank: found["Rank"] || rank || "",
+        };
+
+        sbId.textContent = CHAR.id || "—";
+        sbZh.textContent = CHAR.zh || "—";
+        sbRace.textContent = CHAR.race || "—";
+        sbRef.textContent = CHAR.ref || "—";
+        sbStatus.textContent = "載入成功";
+        sbStatus.classList.remove("status-err");
+        sbStatus.classList.add("status-ok");
+        chatTitle.textContent = "單人聊天｜" + (CHAR.zh || CHAR.id);
+        return CHAR;
+      } catch (err) {
+        console.error(err);
+        sbStatus.textContent = "載入失敗：連線錯誤";
+        sbStatus.classList.add("status-err");
+        addSystemMsg("載入失敗，請檢查 GEX/GN/LNM.json 是否公開。");
+        return null;
+      }
+    }
+
+    function addMsg(text, who = "me") {
+      const wrap = document.createElement("div");
+      wrap.className = "msg " + who;
+      wrap.textContent = text;
+      chatBody.appendChild(wrap);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    function addNpcMsg(text)   { addMsg(text, "npc"); }
+    function addSystemMsg(text){ addMsg("【系統】" + text, "npc"); }
+
+    async function handleCommand(input) {
+      const parts = input.trim().split(/\s+/);
+      const cmd = parts.shift().toLowerCase();
+
+      switch (cmd) {
+        case "/help":
+          addSystemMsg([
+            "指令：",
+            "/help → 顯示指令",
+            "/user → 查看當前使用者",
+            "/char → 查看當前角色",
+            "/char <ID> → 載入指定角色（會自動從三檔找）",
+            "/prompt → 顯示當前上下文",
+            "/stop → 清除畫面訊息",
+          ].join("\n"));
+          break;
+        case "/user":
+          addSystemMsg("使用者：" + USER.name + "（" + USER.id + "），mood=" + USER.mood);
+          break;
+        case "/char":
+          if (parts[0]) {
+            const targetId = parts[0];
+            addSystemMsg("嘗試載入角色：" + targetId);
+            const loaded = await loadCharacterById(targetId, null);
+            if (loaded) addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}，我已接管這個頻道。`);
+          } else {
+            if (!CHAR.id) addSystemMsg("目前還沒有載入任何角色。");
+            else addSystemMsg(`目前角色：${CHAR.id} / ${CHAR.zh} / ${CHAR.race}`);
+          }
+          break;
+        case "/prompt":
+          addSystemMsg("當前上下文：" + JSON.stringify(USER.context));
+          break;
+        case "/stop":
+          chatBody.innerHTML = "";
+          addSystemMsg("畫面已清除。");
+          break;
+        default:
+          addSystemMsg("未知指令：" + cmd + "（/help 看可用指令）");
+      }
+    }
+
+    function replacePlaceholders(text) {
+      return text
+        .replace(/\{USER\.name\}/g, USER.name)
+        .replace(/\{USER\.id\}/g, USER.id)
+        .replace(/\{CHAR\.name\}/g, CHAR.zh || CHAR.en || CHAR.id || "")
+        .replace(/\{CHAR\.id\}/g, CHAR.id || "")
+        .replace(/\{CHAR\.race\}/g, CHAR.race || "");
+    }
+
+    function sendCurrent() {
+      const raw = chatInput.value;
+      const txt = raw.trim();
+      if (!txt) return;
+
+      if (txt.startsWith("/")) {
+        addMsg(txt, "me");
+        chatInput.value = "";
+        handleCommand(txt);
+        return;
+      }
+
+      const final = replacePlaceholders(txt);
+      addMsg(final, "me");
+      chatInput.value = "";
+
+      setTimeout(() => {
+        const name = CHAR.zh || CHAR.en || CHAR.id || "該角色";
+        addNpcMsg(`[${name}] 收到了你的訊息：${final}`);
+      }, 200);
+    }
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        if (e.shiftKey) {
+          return;
+        } else {
+          e.preventDefault();
+          sendCurrent();
+        }
+      }
+    });
+    sendBtn.addEventListener("click", sendCurrent);
+
+    (async function init() {
+      if (!urlId) {
+        sbStatus.textContent = "沒有給 ID";
+        sbStatus.classList.add("status-err");
+        addSystemMsg("URL 沒有帶 id，請回上一頁選角色。");
+        return;
+      }
+      const loaded = await loadCharacterById(urlId, urlRank);
+      if (loaded) {
+        addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}。資料已載入，你可以開始講話。（/help 看指令）`);
+      }
+    })();
+  </script>
+</body>
+</html>
+>>>>>>> origin/root

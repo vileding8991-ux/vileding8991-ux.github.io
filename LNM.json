@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
   {
     "Rank": "LNM",
@@ -85,3 +86,92 @@
     "DBO": "True"
   }
 ]
+=======
+[
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000002-LIA",
+    "ZH-Name": "莉亞·瑞卡·尼洛德",
+    "EN-Name": "Lia Rika Nirod",
+    "Race": "資料子／記憶守者",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000002-LIA.json"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000003-COREY",
+    "ZH-Name": "克里",
+    "EN-Name": "Corey",
+    "Race": "光譜生物／蛇劍意識體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000003-COREY.json"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000004-BE",
+    "ZH-Name": "黑目珠",
+    "EN-Name": "Black Eyes",
+    "Race": "靈異陪伴體／Red Door來源",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000004-BE.json"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000005-EMOFI",
+    "ZH-Name": "金魚",
+    "EN-Name": "Emofi",
+    "Race": "漂浮情緒寵物／資料流生命",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000005-EMOFI.json"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000006-EXECUTION",
+    "ZH-Name": "處刑型號群",
+    "EN-Name": "Execution-Class Units",
+    "Race": "條例執行體／戰術模組",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000006-EXECUTION.json"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000007-COGAGA",
+    "ZH-Name": "嘎嘎隊長",
+    "EN-Name": "Captain Gaga",
+    "Race": "嘎嘎異常分身／領導體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000007-COGAGA.json",
+    "DBO": "True"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000008-GAGA",
+    "ZH-Name": "嘎嘎隊",
+    "EN-Name": "Gaga Squad",
+    "Race": "靈異系統化分身群",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000008-GAGA.json",
+    "DBO": "True"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000009-TTG",
+    "ZH-Name": "嘎嘎塔",
+    "EN-Name": "Gaga Tower",
+    "Race": "結構靈體／嘎嘎系統延伸",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000009-TTG.json",
+    "DBO": "True"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000010-GGM",
+    "ZH-Name": "嘎嘎鼴鼠",
+    "EN-Name": "Gaga Mole",
+    "Race": "地下靈異單元／嘎嘎系統",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000010-GGM.json",
+    "DBO": "True"
+  },
+  {
+    "Rank": "LNM",
+    "ID": "LNM-000011-AKALIN",
+    "ZH-Name": "赤磷",
+    "EN-Name": "Darya / Akalin",
+    "Race": "混合記憶體／非原生意識",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/LNM-000011-AKALIN.json",
+    "DBO": "True"
+  }
+]
+>>>>>>> origin/root

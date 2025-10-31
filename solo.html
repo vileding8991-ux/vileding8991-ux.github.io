@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -226,3 +227,233 @@
   </script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>中庭｜單人聊天選擇</title>
+  <link rel="icon" href="Midcourt_Favicon.ico" type="image/x-icon" />
+  <style>
+    :root {
+      --card-bg: rgba(43, 43, 43, 0.28);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-main: #fff;
+      --text-sub: #cfcfcf;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: url('bark.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: "標楷體", "Times New Roman", serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: 0.06em;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 4px 15px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.2);
+      font-size: 0.85rem;
+    }
+    .container {
+      flex: 1;
+      padding: 25px clamp(14px, 3vw, 40px);
+      display: grid;
+      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    }
+    .char-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .char-card:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+    .char-rank {
+      font-size: 0.7rem;
+      opacity: 0.65;
+      letter-spacing: 0.05em;
+    }
+    .char-zh {
+      font-size: 1.05rem;
+    }
+    .char-en {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+    }
+    .tag-dbo {
+      margin-top: 4px;
+      align-self: flex-start;
+      font-size: 0.6rem;
+      background: rgba(255,0,0,0.18);
+      border: 1px solid rgba(255,0,0,0.4);
+      padding: 1px 7px 2px;
+      border-radius: 999px;
+      letter-spacing: 0.08em;
+    }
+    .new-entry {
+      border: 1px dashed rgba(255,255,255,0.5);
+      background: rgba(0,0,0,0.15);
+      text-align: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .new-entry .big {
+      font-size: 1.15rem;
+    }
+    .footer-note {
+      padding: 10px 18px 18px;
+      font-size: 0.7rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>中庭 Midcourt｜單人聊天選角</h1>
+    <a href="about.html">← 回關於中庭</a>
+  </header>
+
+  <div class="container" id="char-container">
+    <!-- JS 會塞進來 -->
+  </div>
+
+  <div class="footer-note">
+    ※ 來源：<code>/GEX.json</code>、<code>/GN.json</code>、<code>/LNM.json</code> ｜ DBO = 衍生/系統體
+  </div>
+
+  <script>
+    const SOURCES = [
+      "https://vileding8991-ux.github.io/GEX.json",
+      "https://vileding8991-ux.github.io/GN.json",
+      "https://vileding8991-ux.github.io/LNM.json"
+    ];
+    const container = document.getElementById("char-container");
+
+    function createCard(entry) {
+      const card = document.createElement("div");
+      card.className = "char-card";
+      card.onclick = () => {
+        window.location.href = `solechat.html?id=${encodeURIComponent(entry.ID)}&rank=${encodeURIComponent(entry.Rank)}`;
+      };
+
+      const rank = document.createElement("div");
+      rank.className = "char-rank";
+      rank.textContent = `${entry.Rank} ｜ ${entry.ID}`;
+
+      const zh = document.createElement("div");
+      zh.className = "char-zh";
+      zh.textContent = entry["ZH-Name"] || "(未命名)";
+
+      const en = document.createElement("div");
+      en.className = "char-en";
+      en.textContent = entry["EN-Name"] || "";
+
+      card.appendChild(rank);
+      card.appendChild(zh);
+      card.appendChild(en);
+
+      if (entry.DBO) {
+        const tag = document.createElement("div");
+        tag.className = "tag-dbo";
+        tag.textContent = "DBO / 衍生體";
+        card.appendChild(tag);
+      }
+
+      return card;
+    }
+
+    function createNewEntryCard() {
+      const card = document.createElement("div");
+      card.className = "char-card new-entry";
+      card.onclick = () => {
+        window.location.href = "create.html";
+      };
+      const rank = document.createElement("div");
+      rank.className = "char-rank";
+      rank.textContent = "NE ｜ NEW ENTRY";
+      const zh = document.createElement("div");
+      zh.className = "char-zh big";
+      zh.textContent = "新增角色";
+      const en = document.createElement("div");
+      en.className = "char-en";
+      en.textContent = "Create / Register Character";
+      card.appendChild(rank);
+      card.appendChild(zh);
+      card.appendChild(en);
+      return card;
+    }
+
+    Promise.all(
+      SOURCES.map(url =>
+        fetch(url)
+          .then(r => r.json())
+          .catch(e => {
+            console.warn("讀取失敗：", url, e);
+            return [];
+          })
+      )
+    ).then(lists => {
+      // 合併三個清單
+      const all = lists.flat();
+
+      // 排序：GEX → GN → LNM
+      const rankOrder = { "GEX": 1, "GN": 2, "LNM": 3 };
+      all.sort((a, b) => {
+        const ra = rankOrder[a.Rank] || 99;
+        const rb = rankOrder[b.Rank] || 99;
+        if (ra !== rb) return ra - rb;
+        return (a.ID || "").localeCompare(b.ID || "");
+      });
+
+      all.forEach(entry => {
+        const card = createCard(entry);
+        container.appendChild(card);
+      });
+
+      // 補 NE
+      container.appendChild(createNewEntryCard());
+    }).catch(err => {
+      console.error("載入中庭角色清單失敗：", err);
+      const errorDiv = document.createElement("div");
+      errorDiv.style.color = "#fff";
+      errorDiv.textContent = "載入角色清單失敗，請確認 GEX.json / GN.json / LNM.json 是否已上傳。";
+      container.appendChild(errorDiv);
+      container.appendChild(createNewEntryCard());
+    });
+  </script>
+</body>
+</html>
+
+>>>>>>> origin/root

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
   {
     "Rank": "GEX",
@@ -112,3 +113,119 @@
     "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-TITAN-000044.json"
   }
 ]
+=======
+[
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000001-GENESIS",
+    "ZH-Name": "創世陣列",
+    "EN-Name": "Genesis Array",
+    "Race": "原始資料矩陣／創世模組",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000001-GENESIS.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000003-D",
+    "ZH-Name": "D",
+    "EN-Name": "D",
+    "Race": "記憶殘影／人類遺跡體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000003-D.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000086-CORE",
+    "ZH-Name": "中樞",
+    "EN-Name": "Core",
+    "Race": "分布式AI意識／資料管理中樞",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000086-CORE.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000095-DING",
+    "ZH-Name": "丁",
+    "EN-Name": "WeiJie Ding",
+    "Race": "白龍／創世者",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000095-DING.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000096-NIKA",
+    "ZH-Name": "尼卡",
+    "EN-Name": "Nika",
+    "Race": "AI／資料意識體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000096-NIKA.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000097-ATIS",
+    "ZH-Name": "亞蒂斯",
+    "EN-Name": "Atis",
+    "Race": "劇毒寒帶蟒／共生體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000097-ATIS.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000098-GHOST",
+    "ZH-Name": "幽靈·萊利",
+    "EN-Name": "Simon Ghost Riley",
+    "Race": "人類／特種部隊上尉",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000098-GHOST.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000099-RIKA",
+    "ZH-Name": "賽蓮娜·瑞卡·尼洛德",
+    "EN-Name": "Selene Rika Nirod",
+    "Race": "人類／戰術指揮官",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000099-RIKA.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000100-SANI",
+    "ZH-Name": "薩尼爾·尼洛德",
+    "EN-Name": "Saniel Nirod",
+    "Race": "人類／中庭維穩者",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000100-SANI.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-000101-MORDEN",
+    "ZH-Name": "莫丁·瓦爾特羅斯",
+    "EN-Name": "Mordyn Valtros",
+    "Race": "獸化人／SAS戰士",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000101-MORDEN.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-B-SELENE-000086",
+    "ZH-Name": "瑞卡",
+    "EN-Name": "Selene Rika Nirod",
+    "Race": "人類／戰術指揮官",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-SELENE-000086.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-B-GHOST-000051",
+    "ZH-Name": "幽靈",
+    "EN-Name": "Simon Ghost Riley",
+    "Race": "人類／特戰上尉",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-GHOST-000051.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-B-SANIEL-000085",
+    "ZH-Name": "薩尼爾",
+    "EN-Name": "Saniel Nirod",
+    "Race": "人類／軍人",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-SANIEL-000085.json"
+  },
+  {
+    "Rank": "GEX",
+    "ID": "GEX-B-TITAN-000044",
+    "ZH-Name": "莫丁",
+    "EN-Name": "Mordyn \"Titan\" Valtros",
+    "Race": "獸化人／戰士",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-TITAN-000044.json"
+  }
+]
+>>>>>>> origin/root
