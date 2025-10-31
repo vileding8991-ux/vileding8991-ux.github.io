@@ -460,25 +460,40 @@
         return;
       }
 
-      // 使用者說話
-      addMsg(txt, "me");
-      chatInput.value = "";
+// 使用者說話
+addMsg(txt, "me");
+chatInput.value = "";
 
-      // 哪個角色回
-      let who = currentSpeaker;
-      if (!who) {
-        who = pickRandomSpeaker(false);
-      }
+// 隨機讓 3～5 個角色回覆
+let replyCount = Math.floor(3 + Math.random() * 3); // 3~5次
+let delay = 400; // 起始延遲
+let used = new Set(); // 不讓同角重複太快
 
-      if (who) {
-        setTimeout(() => {
-          const name = who["ZH-Name"] || who["EN-Name"] || who.ID || "某人";
-          addNpcMsg(`我聽到了：「${txt}」`, name);
-        }, 200);
-      } else {
-        addNpcMsg("目前沒有任何角色可回覆。", "系統");
-      }
-    }
+function queueReply() {
+  if (replyCount <= 0) return; // 回覆完畢就停
+  replyCount--;
+
+  // 抽角色（避免剛才那位）
+  let who = pickRandomSpeaker(false);
+  if (used.has(who.ID) && used.size < ALL_CHARS.length) {
+    // 重抽直到換人
+    return queueReply();
+  }
+  used.add(who.ID);
+
+  const name = who["ZH-Name"] || who["EN-Name"] || who.ID || "某人";
+  const line = randomLine();
+
+  setTimeout(() => {
+    addNpcMsg(line, name);
+    queueReply(); // 下一個回覆
+  }, delay);
+
+  delay += 900 + Math.random() * 1200; // 每次間隔 0.9~2.1 秒
+}
+
+queueReply(); // 啟動回覆鏈
+
 
     chatInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
