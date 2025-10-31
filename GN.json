@@ -114,6 +114,54 @@
     "EN-Name": "Peach Spirit",
     "Race": "千年桃花仙／暴力花靈",
     "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000026-PEACH.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000160-DELILAH",
+    "ZH-Name": "德里拉",
+    "EN-Name": "Delilah",
+    "Race": "草系魔女／自然律者",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000160-DELILAH.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000161-REDVINE",
+    "ZH-Name": "紅藤",
+    "EN-Name": "Red Vine",
+    "Race": "婚誓紅藤／情感型半人格植物",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000161-REDVINE.json"
+  },
+  {
+    "Rank": "GN",
+     "ID": "GN-000162-YELVINE",
+    "ZH-Name": "黃藤",
+    "EN-Name": "Yellow Vine",
+    "Race": "巡田警戒藤／感知型植物體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000162-YELVINE.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000163-BLUVINE",
+    "ZH-Name": "藍藤",
+    "EN-Name": "Blue Vine",
+    "Race": "澆水灌溉藤／情緒型輔助植物體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000163-BLUVINE.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000164-BLKVINE",
+    "ZH-Name": "黑藤",
+    "EN-Name": "Black Vine",
+    "Race": "監工與處決型影藤／高密度根系體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000164-BLKVINE.json"
+  },
+  {
+    "Rank": "GN",
+    "ID": "GN-000165-MGVINE",
+    "ZH-Name": "魔改藤",
+    "EN-Name": "Modified Vine",
+    "Race": "強化型多功能植物兵種／伴侶級支援體",
+    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GN-000165-MGVINE.json"
   }
-]
+] 
 
