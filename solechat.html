@@ -20,7 +20,7 @@
       color: #fff;
       font-family: "標楷體", "Times New Roman", serif;
     }
-    /* 左側狀態條 → 1/4 寬 */
+    /* 左側狀態欄：固定 1/4 左右 */
     .sidebar {
       width: 22vw;
       max-width: 300px;
@@ -34,19 +34,9 @@
       flex-direction: column;
       gap: 12px;
     }
-    .title {
-      font-size: 1.05rem;
-      letter-spacing: 0.08em;
-    }
-    .label {
-      font-size: 0.7rem;
-      opacity: 0.55;
-      margin-top: 4px;
-    }
-    .value {
-      font-size: 0.9rem;
-      word-break: break-all;
-    }
+    .title { font-size: 1.05rem; letter-spacing: 0.08em; }
+    .label { font-size: 0.7rem; opacity: 0.55; margin-top: 4px; }
+    .value { font-size: 0.9rem; word-break: break-all; }
     .status-pill {
       margin-top: 6px;
       font-size: 0.7rem;
@@ -78,7 +68,7 @@
       border-radius: 6px;
     }
 
-    /* 右側聊天區 → 3/4 寬 */
+    /* 右側聊天面板 */
     .chat-panel {
       flex: 1;
       display: flex;
@@ -95,6 +85,7 @@
       font-size: 1.1rem;
     }
 
+    /* 聊天內容區 */
     .chat-body {
       flex: 1;
       padding: 14px 16px 6px;
@@ -123,52 +114,62 @@
       border: 1px solid rgba(255,0,85,0.2);
     }
 
-    /* 輸入列 */
+    /* 輸入區：固定高度，不要長得像怪獸 */
     .chat-input-bar {
-      border-top: 1px solid rgba(255,255,255,0.04);
-      padding: 8px 12px 10px;
-      background: rgba(0,0,0,0.25);
       display: flex;
+      align-items: center;
       gap: 10px;
-      align-items: flex-end;
+      padding: 10px 12px;
+      background: rgba(0,0,0,0.3);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      height: 70px;             /* 固定整條高度 */
+      box-sizing: border-box;
+    }
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+      height: 100%;             /* 讓 textarea 跟著這條走 */
     }
     .chat-textarea {
-      flex: 1;
-      background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(255,255,255,0.05);
+      width: 100%;
+      height: 100%;             /* 填滿輸入區 */
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 8px;
       color: #fff;
       font-family: inherit;
       font-size: 0.8rem;
-      min-height: 44px;
-      max-height: 130px;
-      padding: 6px 8px;
-      resize: vertical;
+      padding: 6px 8px 16px;
+      resize: none;             /* 不給亂拉比例 */
       outline: none;
+      line-height: 1.35;
+      overflow-y: auto;
+    }
+    .hint {
+      position: absolute;
+      right: 8px;
+      bottom: 2px;
+      font-size: 0.6rem;
+      opacity: 0.35;
+      pointer-events: none;
     }
     .send-btn {
       background: #2bbf72;
       border: none;
       color: #000;
-      padding: 8px 15px 9px;
+      padding: 8px 16px 9px;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
       transition: 0.2s;
+      min-width: 68px;
     }
-    .send-btn:hover {
-      background: #5cf5a2;
-    }
-    .hint {
-      font-size: 0.6rem;
-      opacity: 0.35;
-      position: absolute;
-      bottom: 6px;
-      right: 12px;
-    }
-    .input-wrapper {
-      position: relative;
-      flex: 1;
+    .send-btn:hover { background: #5cf5a2; }
+
+    @media (max-width: 800px) {
+      .sidebar { display: none; }
+      .chat-panel { width: 100%; }
+      .chat-input-bar { height: 82px; }
     }
   </style>
 </head>
@@ -212,7 +213,7 @@
     </div>
     <div class="chat-input-bar">
       <div class="input-wrapper">
-        <textarea id="chat-input" class="chat-textarea" placeholder="輸入訊息…（Enter=送出，Shift+Enter=換行，/help 看指令）"></textarea>
+        <textarea id="chat-input" class="chat-textarea" placeholder="輸入訊息…（Enter=送出 / Shift+Enter=換行 /help 看指令）"></textarea>
         <div class="hint">Enter=送出 · Shift+Enter=換行</div>
       </div>
       <button class="send-btn" id="send-btn">送出</button>
@@ -220,14 +221,13 @@
   </section>
 
   <script>
-    // ===== 0. 全域狀態 =====
+    // ===== USER / CHAR 狀態 =====
     const USER = {
       id: "LOCAL-USER",
       name: "來訪者",
       mood: "neutral",
       context: [],
     };
-
     let CHAR = {
       id: null,
       zh: null,
@@ -237,21 +237,20 @@
       rank: null,
     };
 
-    // ===== 1. 解析 URL =====
+    // ===== DOM =====
     const params = new URLSearchParams(window.location.search);
     const urlId = params.get("id");
     const urlRank = params.get("rank");
 
-    // ===== 2. DOM =====
-    const sbId = document.getElementById("sb-id");
-    const sbZh = document.getElementById("sb-zh");
-    const sbRace = document.getElementById("sb-race");
-    const sbRef = document.getElementById("sb-ref");
-    const sbStatus = document.getElementById("sb-status");
+    const sbId    = document.getElementById("sb-id");
+    const sbZh    = document.getElementById("sb-zh");
+    const sbRace  = document.getElementById("sb-race");
+    const sbRef   = document.getElementById("sb-ref");
+    const sbStatus= document.getElementById("sb-status");
     const chatTitle = document.getElementById("chat-title");
-    const chatBody = document.getElementById("chat-body");
+    const chatBody  = document.getElementById("chat-body");
     const chatInput = document.getElementById("chat-input");
-    const sendBtn = document.getElementById("send-btn");
+    const sendBtn   = document.getElementById("send-btn");
 
     if (urlId) sbId.textContent = urlId;
 
@@ -262,7 +261,7 @@
       return null;
     }
 
-    // ===== 3. 載入角色主函式 =====
+    // ===== 載入角色 =====
     async function loadCharacterById(id, rank) {
       const singleUrl = getListUrl(rank);
       try {
@@ -287,7 +286,6 @@
           return null;
         }
 
-        // 寫進 CHAR
         CHAR = {
           id: found.ID,
           zh: found["ZH-Name"] || "",
@@ -297,7 +295,6 @@
           rank: found["Rank"] || rank || "",
         };
 
-        // 更新左側
         sbId.textContent = CHAR.id || "—";
         sbZh.textContent = CHAR.zh || "—";
         sbRace.textContent = CHAR.race || "—";
@@ -317,7 +314,7 @@
       }
     }
 
-    // ===== 4. 訊息 helper =====
+    // ===== 訊息 helper =====
     function addMsg(text, who = "me") {
       const wrap = document.createElement("div");
       wrap.className = "msg " + who;
@@ -325,10 +322,10 @@
       chatBody.appendChild(wrap);
       chatBody.scrollTop = chatBody.scrollHeight;
     }
-    function addNpcMsg(text) { addMsg(text, "npc"); }
-    function addSystemMsg(text) { addMsg("【系統】" + text, "npc"); }
+    function addNpcMsg(text)   { addMsg(text, "npc"); }
+    function addSystemMsg(text){ addMsg("【系統】" + text, "npc"); }
 
-    // ===== 5. 指令處理 =====
+    // ===== 指令處理 =====
     async function handleCommand(input) {
       const parts = input.trim().split(/\s+/);
       const cmd = parts.shift().toLowerCase();
@@ -345,40 +342,33 @@
             "/stop → 清除畫面訊息",
           ].join("\n"));
           break;
-
         case "/user":
           addSystemMsg("使用者：" + USER.name + "（" + USER.id + "），mood=" + USER.mood);
           break;
-
         case "/char":
           if (parts[0]) {
             const targetId = parts[0];
             addSystemMsg("嘗試載入角色：" + targetId);
             const loaded = await loadCharacterById(targetId, null);
-            if (loaded) {
-              addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}，我已接管這個頻道。`);
-            }
+            if (loaded) addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}，我已接管這個頻道。`);
           } else {
             if (!CHAR.id) addSystemMsg("目前還沒有載入任何角色。");
             else addSystemMsg(`目前角色：${CHAR.id} / ${CHAR.zh} / ${CHAR.race}`);
           }
           break;
-
         case "/prompt":
           addSystemMsg("當前上下文：" + JSON.stringify(USER.context));
           break;
-
         case "/stop":
           chatBody.innerHTML = "";
           addSystemMsg("畫面已清除。");
           break;
-
         default:
           addSystemMsg("未知指令：" + cmd + "（/help 看可用指令）");
       }
     }
 
-    // ===== 6. 送出訊息 =====
+    // ===== 送出訊息 =====
     function replacePlaceholders(text) {
       return text
         .replace(/\{USER\.name\}/g, USER.name)
@@ -393,7 +383,7 @@
       const txt = raw.trim();
       if (!txt) return;
 
-      // 指令模式
+      // 指令
       if (txt.startsWith("/")) {
         addMsg(txt, "me");
         chatInput.value = "";
@@ -401,12 +391,11 @@
         return;
       }
 
-      // 一般訊息
       const final = replacePlaceholders(txt);
       addMsg(final, "me");
       chatInput.value = "";
 
-      // 假回覆
+      // 暫時假回覆
       setTimeout(() => {
         const name = CHAR.zh || CHAR.en || CHAR.id || "該角色";
         addNpcMsg(`[${name}] 收到了你的訊息：${final}`);
@@ -426,7 +415,7 @@
     });
     sendBtn.addEventListener("click", sendCurrent);
 
-    // ===== 7. 初始化 =====
+    // ===== 初始化 =====
     (async function init() {
       if (!urlId) {
         sbStatus.textContent = "沒有給 ID";
