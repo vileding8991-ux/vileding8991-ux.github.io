@@ -122,11 +122,6 @@
       background: rgba(0,0,0,0.2);
       border: 1px solid rgba(255,0,85,0.2);
     }
-    .msg-meta {
-      font-size: 0.65rem;
-      opacity: 0.5;
-      margin-bottom: 3px;
-    }
 
     /* 輸入列 */
     .chat-input-bar {
@@ -217,7 +212,7 @@
     </div>
     <div class="chat-input-bar">
       <div class="input-wrapper">
-        <textarea id="chat-input" class="chat-textarea" placeholder="輸入訊息…（Enter=送出，Shift+Enter=換行）"></textarea>
+        <textarea id="chat-input" class="chat-textarea" placeholder="輸入訊息…（Enter=送出，Shift+Enter=換行，/help 看指令）"></textarea>
         <div class="hint">Enter=送出 · Shift+Enter=換行</div>
       </div>
       <button class="send-btn" id="send-btn">送出</button>
@@ -225,12 +220,29 @@
   </section>
 
   <script>
-    // 1) 解析 URL
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get("id");
-    const rank = params.get("rank");
+    // ===== 0. 全域狀態 =====
+    const USER = {
+      id: "LOCAL-USER",
+      name: "來訪者",
+      mood: "neutral",
+      context: [],
+    };
 
-    // 2) 取得 DOM
+    let CHAR = {
+      id: null,
+      zh: null,
+      en: null,
+      race: null,
+      ref: null,
+      rank: null,
+    };
+
+    // ===== 1. 解析 URL =====
+    const params = new URLSearchParams(window.location.search);
+    const urlId = params.get("id");
+    const urlRank = params.get("rank");
+
+    // ===== 2. DOM =====
     const sbId = document.getElementById("sb-id");
     const sbZh = document.getElementById("sb-zh");
     const sbRace = document.getElementById("sb-race");
@@ -241,7 +253,7 @@
     const chatInput = document.getElementById("chat-input");
     const sendBtn = document.getElementById("send-btn");
 
-    if (id) sbId.textContent = id;
+    if (urlId) sbId.textContent = urlId;
 
     function getListUrl(rank) {
       if (rank === "GEX") return "https://vileding8991-ux.github.io/GEX.json";
@@ -250,15 +262,8 @@
       return null;
     }
 
-    // 3) 載入角色
-    async function loadCharacter() {
-      if (!id) {
-        sbStatus.textContent = "沒有給 ID";
-        sbStatus.classList.add("status-err");
-        addSystemMsg("URL 沒有帶 id，請回上一頁選角色。");
-        return;
-      }
-
+    // ===== 3. 載入角色主函式 =====
+    async function loadCharacterById(id, rank) {
       const singleUrl = getListUrl(rank);
       try {
         let lists = [];
@@ -278,29 +283,41 @@
         if (!found) {
           sbStatus.textContent = "載入失敗：找不到角色";
           sbStatus.classList.add("status-err");
-          addSystemMsg("找不到這個 ID：" + id + "，請回上一頁重選。");
-          return;
+          addSystemMsg("找不到這個 ID：" + id);
+          return null;
         }
 
-        // 填資料
-        sbZh.textContent = found["ZH-Name"] || "—";
-        sbRace.textContent = found["Race"] || "—";
-        sbRef.textContent = found["Referenced-resources"] || "—";
-        sbStatus.textContent = "載入成功";
-        sbStatus.classList.add("status-ok");
-        chatTitle.textContent = "單人聊天｜" + (found["ZH-Name"] || found.ID);
+        // 寫進 CHAR
+        CHAR = {
+          id: found.ID,
+          zh: found["ZH-Name"] || "",
+          en: found["EN-Name"] || "",
+          race: found["Race"] || "",
+          ref: found["Referenced-resources"] || "",
+          rank: found["Rank"] || rank || "",
+        };
 
-        // 初始訊息
-        addNpcMsg(`這裡是 ${found["ZH-Name"] || found["EN-Name"] || found.ID}。資料已載入，你可以開始講話。`);
+        // 更新左側
+        sbId.textContent = CHAR.id || "—";
+        sbZh.textContent = CHAR.zh || "—";
+        sbRace.textContent = CHAR.race || "—";
+        sbRef.textContent = CHAR.ref || "—";
+        sbStatus.textContent = "載入成功";
+        sbStatus.classList.remove("status-err");
+        sbStatus.classList.add("status-ok");
+        chatTitle.textContent = "單人聊天｜" + (CHAR.zh || CHAR.id);
+
+        return CHAR;
       } catch (err) {
         console.error(err);
         sbStatus.textContent = "載入失敗：連線錯誤";
         sbStatus.classList.add("status-err");
         addSystemMsg("載入失敗，請檢查 GEX/GN/LNM.json 是否公開。");
+        return null;
       }
     }
 
-    // 4) 聊天訊息 helper
+    // ===== 4. 訊息 helper =====
     function addMsg(text, who = "me") {
       const wrap = document.createElement("div");
       wrap.className = "msg " + who;
@@ -311,35 +328,117 @@
     function addNpcMsg(text) { addMsg(text, "npc"); }
     function addSystemMsg(text) { addMsg("【系統】" + text, "npc"); }
 
-    // 5) 發送邏輯
+    // ===== 5. 指令處理 =====
+    async function handleCommand(input) {
+      const parts = input.trim().split(/\s+/);
+      const cmd = parts.shift().toLowerCase();
+
+      switch (cmd) {
+        case "/help":
+          addSystemMsg([
+            "指令：",
+            "/help → 顯示指令",
+            "/user → 查看當前使用者",
+            "/char → 查看當前角色",
+            "/char <ID> → 載入指定角色（會自動從三檔找）",
+            "/prompt → 顯示當前上下文",
+            "/stop → 清除畫面訊息",
+          ].join("\n"));
+          break;
+
+        case "/user":
+          addSystemMsg("使用者：" + USER.name + "（" + USER.id + "），mood=" + USER.mood);
+          break;
+
+        case "/char":
+          if (parts[0]) {
+            const targetId = parts[0];
+            addSystemMsg("嘗試載入角色：" + targetId);
+            const loaded = await loadCharacterById(targetId, null);
+            if (loaded) {
+              addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}，我已接管這個頻道。`);
+            }
+          } else {
+            if (!CHAR.id) addSystemMsg("目前還沒有載入任何角色。");
+            else addSystemMsg(`目前角色：${CHAR.id} / ${CHAR.zh} / ${CHAR.race}`);
+          }
+          break;
+
+        case "/prompt":
+          addSystemMsg("當前上下文：" + JSON.stringify(USER.context));
+          break;
+
+        case "/stop":
+          chatBody.innerHTML = "";
+          addSystemMsg("畫面已清除。");
+          break;
+
+        default:
+          addSystemMsg("未知指令：" + cmd + "（/help 看可用指令）");
+      }
+    }
+
+    // ===== 6. 送出訊息 =====
+    function replacePlaceholders(text) {
+      return text
+        .replace(/\{USER\.name\}/g, USER.name)
+        .replace(/\{USER\.id\}/g, USER.id)
+        .replace(/\{CHAR\.name\}/g, CHAR.zh || CHAR.en || CHAR.id || "")
+        .replace(/\{CHAR\.id\}/g, CHAR.id || "")
+        .replace(/\{CHAR\.race\}/g, CHAR.race || "");
+    }
+
     function sendCurrent() {
-      const txt = chatInput.value.trim();
+      const raw = chatInput.value;
+      const txt = raw.trim();
       if (!txt) return;
-      addMsg(txt, "me");
+
+      // 指令模式
+      if (txt.startsWith("/")) {
+        addMsg(txt, "me");
+        chatInput.value = "";
+        handleCommand(txt);
+        return;
+      }
+
+      // 一般訊息
+      const final = replacePlaceholders(txt);
+      addMsg(final, "me");
       chatInput.value = "";
-      // 這裡之後你可以改成真正 call 後端，現在先做 echo
+
+      // 假回覆
       setTimeout(() => {
-        addNpcMsg("（暫時回聲）你說的是：「" + txt + "」");
+        const name = CHAR.zh || CHAR.en || CHAR.id || "該角色";
+        addNpcMsg(`[${name}] 收到了你的訊息：${final}`);
       }, 200);
     }
 
-    // Enter=送出，Shift+Enter=換行
+    // 鍵盤事件
     chatInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         if (e.shiftKey) {
-          // 換行
-          return;
+          return; // 換行
         } else {
           e.preventDefault();
           sendCurrent();
         }
       }
     });
-
     sendBtn.addEventListener("click", sendCurrent);
 
-    // 開始跑
-    loadCharacter();
+    // ===== 7. 初始化 =====
+    (async function init() {
+      if (!urlId) {
+        sbStatus.textContent = "沒有給 ID";
+        sbStatus.classList.add("status-err");
+        addSystemMsg("URL 沒有帶 id，請回上一頁選角色。");
+        return;
+      }
+      const loaded = await loadCharacterById(urlId, urlRank);
+      if (loaded) {
+        addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}。資料已載入，你可以開始講話。（/help 看指令）`);
+      }
+    })();
   </script>
 </body>
 </html>
