@@ -6,39 +6,95 @@
   <title>去睡覺吧</title>
   <link rel="icon" href="Midcourt_Favicon.ico" type="image/x-icon" />
   <style>
+    :root {
+      --mid-red: #be0000;
+      --soft-red: #790000;
+      --bg: #000;
+    }
     body {
       margin: 0;
       min-height: 100vh;
-      background: #000;
+      background: radial-gradient(circle at 50% 20%, #1a0000 0%, #000 55%, #000 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       font-family: "標楷體", "Times New Roman", serif;
       text-align: center;
-      color: #be0000;
+      color: var(--mid-red);
+      overflow: hidden;
     }
+
+    /* 大標：紅色心跳 + 光暈抖 */
     h1 {
-      font-size: 36px;
-      margin-bottom: 12px;
+      font-size: clamp(2.2rem, 4vw, 3.3rem);
+      margin-bottom: 15px;
+      animation: throb 1.6s ease-in-out infinite, glow 2.8s ease-in-out infinite;
     }
+
+    /* 英文副標略淡，當回聲 */
     p {
-      color: #be0000;
-      margin-bottom: 35px;
-      line-height: 1.5;
+      color: var(--soft-red);
+      margin-bottom: 40px;
+      text-shadow: 0 0 5px rgba(190,0,0,0.3);
+      animation: breathe 4s ease-in-out infinite;
     }
+
+    /* 回入口按鈕 */
     .btn {
       background: transparent;
-      border: 1px solid #be0000;
-      color: #be0000;
-      padding: 10px 22px;
-      border-radius: 4px;
+      border: 1px solid var(--mid-red);
+      color: var(--mid-red);
+      padding: 10px 28px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.25s;
+      box-shadow: 0 0 12px rgba(190, 0, 0, 0.35);
+      animation: btnpulse 2.4s ease-in-out infinite;
       text-decoration: none;
-      transition: 0.2s;
     }
     .btn:hover {
-      background: #be0000;
+      background: rgba(190,0,0,0.35);
       color: #000;
+      box-shadow: 0 0 20px rgba(173, 0, 0, 0.65);
+    }
+
+    /* 動畫定義 */
+    @keyframes throb {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.03); }
+      45%  { transform: scale(1); }
+      60%  { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes glow {
+      0%,100% { text-shadow: 0 0 6px rgba(190,0,0,0.6), 0 0 16px rgba(190,0,0,0.3); }
+      40%     { text-shadow: 0 0 22px rgba(190,0,0,0.9), 0 0 34px rgba(190,0,0,0.5); }
+      70%     { text-shadow: 0 0 10px rgba(190,0,0,0.5); }
+    }
+
+    @keyframes breathe {
+      0%,100% { opacity: 0.6; }
+      40%     { opacity: 1; }
+    }
+
+    @keyframes btnpulse {
+      0%,100% { box-shadow: 0 0 10px rgba(190,0,0,0.3); }
+      50%     { box-shadow: 0 0 18px rgba(190,0,0,0.65); }
+    }
+
+    /* 如果音效被擋，顯示提示 */
+    #audio-hint {
+      margin-top: 25px;
+      color: rgb(78, 0, 0);
+      font-size: 0.85rem;
+      display: none;
+      cursor: pointer;
+    }
+    #audio-hint:hover {
+      color: rgb(155, 0, 0);
     }
   </style>
 </head>
@@ -47,10 +103,30 @@
   <p>"Go to sleep, I will find you in your dreams."</p>
   <a class="btn" href="index.html">…好啦我回入口</a>
 
+  <!-- 音效：放你自己的檔案，建議 mp3 / ogg -->
+  <audio id="bgm" src="dream.ogg" loop></audio>
+  <div id="audio-hint">（點一下這裡開音）</div>
+
   <script>
-    // 這只是嚇人的，不做破壞
+    // 嘗試自動播放
+    const audio = document.getElementById('bgm');
+    const hint = document.getElementById('audio-hint');
+
+    // 有些瀏覽器允許靜音起播
+    audio.volume = 0.45;
+
+    audio.play().catch(() => {
+      // 被擋就顯示提示
+      hint.style.display = 'block';
+    });
+
+    hint.addEventListener('click', () => {
+      audio.play();
+      hint.style.display = 'none';
+    });
+
+    // log 一下，保持你原本那個「我記得你來過」風格
     console.log("[Midcourt] visitor chose SLEEP route at " + new Date().toISOString());
   </script>
 </body>
 </html>
-
