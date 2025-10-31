@@ -1,0 +1,234 @@
+<script>
+  // ===== 使用者狀態 =====
+  const USER = {
+    id: "LOCAL-USER",
+    name: "來訪者",
+    mood: "neutral",
+    context: [],
+  };
+
+  // 所有角色
+  let ALL_CHARS = [];
+  let currentSpeaker = null; // 手動點的時候用
+  let autoChatOn = true;     // 之後可以用 /mute 關掉
+
+  const sbStatus     = document.getElementById("sb-status");
+  const loadedCount  = document.getElementById("loaded-count");
+  const currentSpeakerEl = document.getElementById("current-speaker");
+  const charListEl   = document.getElementById("char-list");
+  const chatBody     = document.getElementById("chat-body");
+  const chatInput    = document.getElementById("chat-input");
+  const sendBtn      = document.getElementById("send-btn");
+
+  async function loadAllCharacters() {
+    const urls = [
+      "https://vileding8991-ux.github.io/GEX.json",
+      "https://vileding8991-ux.github.io/GN.json",
+      "https://vileding8991-ux.github.io/LNM.json",
+      "https://vileding8991-ux.github.io/NE.json"  // 你說的自選NE
+    ];
+
+    try {
+      const results = await Promise.all(
+        urls.map(u => fetch(u).then(r => r.json()).catch(() => []))
+      );
+      ALL_CHARS = results.flat().filter(Boolean);
+      loadedCount.textContent = ALL_CHARS.length;
+      sbStatus.textContent = "全部載入成功";
+      sbStatus.classList.add("status-ok");
+      renderCharList();
+      addNpcMsg("【系統】群體頻道已啟動。待命中，角色會不定時發話。");
+
+      // ★ 啟動自動亂聊
+      autoChatter();
+    } catch (err) {
+      console.error(err);
+      sbStatus.textContent = "載入失敗";
+      sbStatus.classList.add("status-err");
+      addNpcMsg("【系統】角色清單載入失敗，請檢查 JSON 是否公開。");
+    }
+  }
+
+  function renderCharList() {
+    charListEl.innerHTML = "";
+    ALL_CHARS.forEach(ch => {
+      const div = document.createElement("div");
+      div.className = "char-item";
+      div.dataset.id = ch.ID;
+      div.innerHTML = `
+        <span>${ch["ZH-Name"] || ch["EN-Name"] || ch.ID}</span>
+        <span class="char-rank">${ch.Rank || "NE"}</span>
+      `;
+      div.addEventListener("click", () => {
+        currentSpeaker = ch;
+        currentSpeakerEl.textContent = (ch["ZH-Name"] || ch["EN-Name"] || ch.ID);
+        // 高亮
+        document.querySelectorAll(".char-item").forEach(e => e.classList.remove("active"));
+        div.classList.add("active");
+        addNpcMsg(`【系統】你已指定 ${ch["ZH-Name"] || ch["EN-Name"] || ch.ID} 作為下一位發話者。`);
+      });
+      charListEl.appendChild(div);
+    });
+  }
+
+  // ===== 訊息 helper =====
+  function addMsg(text, who = "me") {
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + who;
+    wrap.textContent = text;
+    chatBody.appendChild(wrap);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+  function addNpcMsg(text, fromName) {
+    const wrap = document.createElement("div");
+    wrap.className = "msg npc";
+    if (fromName) {
+      wrap.innerHTML = `<span class="from">${fromName}</span>${text}`;
+    } else {
+      wrap.textContent = text;
+    }
+    chatBody.appendChild(wrap);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  // ===== 隨機說話內容（暫時用假文）=====
+  const AUTO_LINES = [
+    "巡邏線穩定，東側黑火還在燒。",
+    "剛剛有一隻嘎嘎鼴鼠從地底鑽過去，忽略它。",
+    "中庭資料層回報：丁還是本日最高權限。",
+    "誰又把我名字寫成 D 了？手借我用一下。",
+    "塔塔嘎在屋頂叫，我先去關一下喉嚨。",
+    "冥界 L-21 溫泉區 OK，可以下去泡。",
+    "桃花說你要吃飯，不吃她要抽人了。",
+    "瑞卡：『家務也要紀律。』←她真的這樣說。",
+    "Ghost 在影子裡，別叫他，他在看你。",
+    "Atis：『我在。』",
+    "莉亞把你的記憶翻了一頁，說這頁比較好看。",
+    "蛆蛆說她不是故意被召來的。",
+    "咕咕：吱。"
+  ];
+
+  function randomLine() {
+    return AUTO_LINES[Math.floor(Math.random() * AUTO_LINES.length)];
+  }
+
+  // ===== 指令 =====
+  async function handleCommand(input) {
+    const parts = input.trim().split(/\s+/);
+    const cmd = parts.shift().toLowerCase();
+    switch (cmd) {
+      case "/help":
+        addNpcMsg([
+          "指令：",
+          "/help → 顯示指令",
+          "/list → 顯示目前載入角色數",
+          "/stop → 清除畫面",
+          "/rand → 隨機切發話角色",
+          "/mute → 關掉自動亂聊",
+          "/unmute → 打開自動亂聊"
+        ].join("\n"), "系統");
+        break;
+      case "/list":
+        addNpcMsg("目前載入角色數：" + ALL_CHARS.length, "系統");
+        break;
+      case "/stop":
+        chatBody.innerHTML = "";
+        addNpcMsg("畫面已清除。", "系統");
+        break;
+      case "/rand":
+        pickRandomSpeaker(true);
+        break;
+      case "/mute":
+        autoChatOn = false;
+        addNpcMsg("已關閉背景亂聊。", "系統");
+        break;
+      case "/unmute":
+        if (!autoChatOn) {
+          autoChatOn = true;
+          addNpcMsg("已開啟背景亂聊。", "系統");
+          autoChatter(); // 重開
+        }
+        break;
+      default:
+        addNpcMsg("未知指令：" + cmd, "系統");
+    }
+  }
+
+  function pickRandomSpeaker(showMsg = false) {
+    if (!ALL_CHARS.length) return null;
+    const ch = ALL_CHARS[Math.floor(Math.random() * ALL_CHARS.length)];
+    currentSpeaker = ch;
+    currentSpeakerEl.textContent = (ch["ZH-Name"] || ch["EN-Name"] || ch.ID);
+    // 左側同步高亮
+    document.querySelectorAll(".char-item").forEach(e => {
+      e.classList.toggle("active", e.dataset.id === ch.ID);
+    });
+    if (showMsg) addNpcMsg(`隨機選中了：${ch["ZH-Name"] || ch["EN-Name"] || ch.ID}`, "系統");
+    return ch;
+  }
+
+  // ===== 自動亂聊（無限循環）=====
+  function autoChatter() {
+    if (!autoChatOn) return;
+    // 4 ~ 11 秒之間隨機
+    const delay = 4000 + Math.random() * 7000;
+    setTimeout(() => {
+      if (!autoChatOn) return;         // 中途被 /mute 就停
+      if (!ALL_CHARS.length) {
+        autoChatter();
+        return;
+      }
+      const who = pickRandomSpeaker(false);
+      const name = who["ZH-Name"] || who["EN-Name"] || who.ID || "某人";
+      const line = randomLine();
+      addNpcMsg(line, name);
+      autoChatter(); // ★ 再排下一次 → 無限
+    }, delay);
+  }
+
+  // ===== 送出訊息 =====
+  function sendCurrent() {
+    const raw = chatInput.value;
+    const txt = raw.trim();
+    if (!txt) return;
+
+    // 指令
+    if (txt.startsWith("/")) {
+      addMsg(txt, "me");
+      chatInput.value = "";
+      handleCommand(txt);
+      return;
+    }
+
+    // 使用者說話
+    addMsg(txt, "me");
+    chatInput.value = "";
+
+    // 哪個角色回
+    let who = currentSpeaker;
+    if (!who) {
+      who = pickRandomSpeaker(false);
+    }
+
+    if (who) {
+      setTimeout(() => {
+        const name = who["ZH-Name"] || who["EN-Name"] || who.ID || "某人";
+        addNpcMsg(`我聽到了：「${txt}」`, name);
+      }, 200);
+    } else {
+      addNpcMsg("目前沒有任何角色可回覆。", "系統");
+    }
+  }
+
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      if (e.shiftKey) return;
+      e.preventDefault();
+      sendCurrent();
+    }
+  });
+  sendBtn.addEventListener("click", sendCurrent);
+
+  // 起手拉全部
+  loadAllCharacters();
+</script>
