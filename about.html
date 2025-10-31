@@ -19,19 +19,19 @@
     }
 
 .glassbox {
-  background: rgba(43, 43, 43, 0.068); /* 原本黑 → 改成白透明 */
+  background: rgba(43, 43, 43, 0.25); /* 灰偏黑、透明度25% */
   border-radius: 18px;
-  box-shadow: 0 0 25px rgba(53, 53, 53, 0.2); /* 外圈改柔光 */
-  backdrop-filter: blur(5x) brightness(1.2); /* 更亮、更霧 */
-  -webkit-backdrop-filter: blur(5x) brightness(1.2); /* Safari支援 */
+  box-shadow: 0 0 25px rgba(53, 53, 53, 0.3);
+  backdrop-filter: blur(5px) brightness(1.15);
+  -webkit-backdrop-filter: blur(5px) brightness(1.15);
   padding: 40px 60px;
   text-align: center;
   max-width: 800px;
-  border: 1px solid rgba(43, 43, 43, 0.068); /* 淡淡的邊框 */
-}
+  border: 1px solid rgba(255, 255, 255, 0.15); /* 加點亮邊線 */
 }
 
-    }
+}
+
 
     h1 {
       font-size: 42px;
@@ -71,5 +71,4 @@
     <a href="index.html">← 回到入口</a>
   </div>
 </body>
-
 </html>
