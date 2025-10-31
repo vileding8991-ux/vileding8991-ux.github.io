@@ -1,0 +1,42 @@
+[
+  {
+    "Map-Name": "中央中庭浮島",
+    "Realm": "空",
+    "Link": "https://vileding8991-ux.github.io/Map/central.json"
+  },
+  {
+    "Map-Name": "東側黑火走廊區",
+    "Realm": "陸",
+    "Link": "https://vileding8991-ux.github.io/Map/blackfire.json"
+  },
+  {
+    "Map-Name": "M-55西外圍浮島（軒轅茶店）",
+    "Realm": "空",
+    "Link": "https://vileding8991-ux.github.io/Map/m55.json"
+  },
+  {
+    "Map-Name": "冥界L-21浮島",
+    "Realm": "冥",
+    "Link": "https://vileding8991-ux.github.io/Map/l21.json"
+  },
+  {
+    "Map-Name": "浮島遊樂區",
+    "Realm": "空",
+    "Link": "https://vileding8991-ux.github.io/Map/playzone.json"
+  },
+  {
+    "Map-Name": "丘丘島",
+    "Realm": "陸",
+    "Link": "https://vileding8991-ux.github.io/Map/hillichurl.json"
+  },
+  {
+    "Map-Name": "地底層結構",
+    "Realm": "冥",
+    "Link": "https://vileding8991-ux.github.io/Map/underground.json"
+  },
+  {
+    "Map-Name": "現實世界",
+    "Realm": "地球",
+    "Link": "https://vileding8991-ux.github.io/Map/earth.json"
+  }
+]
