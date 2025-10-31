@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>中庭｜單人聊天</title>
+  <link rel="icon" href="Midcourt_Favicon.ico" type="image/x-icon" />
+  <style>
+    :root {
+      --bg1: #1b1b1b;
+      --bg2: #101820;
+      --panel: rgba(0,0,0,0.35);
+      --ok: #5dffb0;
+      --err: #ff6a6a;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      background: radial-gradient(circle at top, var(--bg2) 0%, #0b0b0b 45%, #000 100%);
+      color: #fff;
+      font-family: "標楷體", "Times New Roman", serif;
+    }
+    /* 左側狀態條 */
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(160deg, rgba(0,0,0,0.7), rgba(0,0,0,0.1));
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 16px 16px 14px;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .title {
+      font-size: 1.05rem;
+      letter-spacing: 0.08em;
+    }
+    .label {
+      font-size: 0.7rem;
+      opacity: 0.55;
+      margin-top: 4px;
+    }
+    .value {
+      font-size: 0.9rem;
+      word-break: break-all;
+    }
+    .status-pill {
+      margin-top: 6px;
+      font-size: 0.7rem;
+      padding: 3px 10px 4px;
+      border-radius: 999px;
+      align-self: flex-start;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .status-ok {
+      background: rgba(93,255,176,0.12);
+      border-color: rgba(93,255,176,0.4);
+      color: #dfffef;
+    }
+    .status-err {
+      background: rgba(255,80,80,0.15);
+      border-color: rgba(255,110,110,0.4);
+      color: #ffeaea;
+    }
+    .back-link {
+      margin-top: auto;
+      font-size: 0.65rem;
+    }
+    .back-link a {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    /* 右側主區 */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-header {
+      padding: 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      background: radial-gradient(circle at 35% 40%, rgba(255,0,85,0.2) 0%, rgba(0,0,0,0) 45%);
+    }
+    .main-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .main-body {
+      flex: 1;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .info-line {
+      font-size: 0.85rem;
+      opacity: 0.75;
+    }
+    .highlight {
+      color: #fff;
+      opacity: 1;
+    }
+    .placeholder-chat {
+      margin-top: 16px;
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.78rem;
+      opacity: 0.6;
+    }
+    code {
+      background: rgba(0,0,0,0.2);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="title">中庭 狀態</div>
+
+    <div>
+      <div class="label">目前角色 ID</div>
+      <div class="value" id="sb-id">（尚未載入）</div>
+    </div>
+
+    <div>
+      <div class="label">中文名稱</div>
+      <div class="value" id="sb-zh">—</div>
+    </div>
+
+    <div>
+      <div class="label">Race</div>
+      <div class="value" id="sb-race">—</div>
+    </div>
+
+    <div>
+      <div class="label">Referenced-resources</div>
+      <div class="value" id="sb-ref">—</div>
+    </div>
+
+    <div id="sb-status" class="status-pill">等待載入…</div>
+
+    <div class="back-link">
+      <a href="solo.html">← 回角色列表</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-header">
+      <h2 id="page-title">單人聊天</h2>
+    </div>
+    <div class="main-body" id="main-body">
+      <div class="info-line">正在讀取角色資料…</div>
+      <div class="placeholder-chat">
+        這裡之後可以放你的聊天視窗。<br>
+        目前只做載入驗證：<br>
+        1. 讀 URL ?id=xxx&rank=yyy<br>
+        2. 去對應 JSON 找到這個角色<br>
+        3. 把名字 / race / referenced 資訊灌到左側狀態條
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // 解析 URL 參數
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const rank = params.get("rank"); // 可能是 GEX / GN / LNM
+
+    // 左側欄
+    const sbId = document.getElementById("sb-id");
+    const sbZh = document.getElementById("sb-zh");
+    const sbRace = document.getElementById("sb-race");
+    const sbRef = document.getElementById("sb-ref");
+    const sbStatus = document.getElementById("sb-status");
+    const pageTitle = document.getElementById("page-title");
+    const mainBody = document.getElementById("main-body");
+
+    // 初始顯示 URL id
+    if (id) {
+      sbId.textContent = id;
+    }
+
+    // 決定要抓哪一支 list
+    function getListUrl(rank) {
+      if (rank === "GEX") return "https://vileding8991-ux.github.io/GEX.json";
+      if (rank === "GN") return "https://vileding8991-ux.github.io/GN.json";
+      if (rank === "LNM") return "https://vileding8991-ux.github.io/LNM.json";
+      // 沒有 rank 的話，就全抓一次
+      return null;
+    }
+
+    async function loadCharacter() {
+      if (!id) {
+        sbStatus.textContent = "沒有給 ID";
+        sbStatus.classList.add("status-err");
+        mainBody.innerHTML = "<div class='info-line'>URL 沒有帶 <code>?id=</code>，無法載入角色。</div>";
+        return;
+      }
+
+      const singleUrl = getListUrl(rank);
+
+      try {
+        let lists = [];
+        if (singleUrl) {
+          const res = await fetch(singleUrl);
+          lists = await res.json();
+        } else {
+          // 沒給 rank → 三支全部抓
+          const [gex, gn, lnm] = await Promise.all([
+            fetch("https://vileding8991-ux.github.io/GEX.json").then(r => r.json()).catch(() => []),
+            fetch("https://vileding8991-ux.github.io/GN.json").then(r => r.json()).catch(() => []),
+            fetch("https://vileding8991-ux.github.io/LNM.json").then(r => r.json()).catch(() => [])
+          ]);
+          lists = [...gex, ...gn, ...lnm];
+        }
+
+        // 找該角色
+        const found = lists.find(item => item.ID === id);
+        if (!found) {
+          sbStatus.textContent = "載入失敗：找不到角色";
+          sbStatus.classList.add("status-err");
+          mainBody.innerHTML = "<div class='info-line'>找不到這個 ID：<code>" + id + "</code>，請回上一頁重選。</div>";
+          return;
+        }
+
+        // 填資料
+        sbZh.textContent = found["ZH-Name"] || "—";
+        sbRace.textContent = found["Race"] || "—";
+        sbRef.textContent = found["Referenced-resources"] || "—";
+        sbStatus.textContent = "載入成功";
+        sbStatus.classList.add("status-ok");
+        pageTitle.textContent = "單人聊天｜" + (found["ZH-Name"] || found.ID);
+
+        // 主區塊給個漂亮一點的資訊
+        mainBody.innerHTML = `
+          <div class="info-line">角色：<span class="highlight">${found["ZH-Name"] || "—"}</span> (${found["EN-Name"] || ""})</div>
+          <div class="info-line">ID：<code>${found.ID}</code>　Rank：<code>${found.Rank}</code></div>
+          <div class="info-line">Race：${found["Race"] || "—"}</div>
+          <div class="info-line">Data：<a href="${found["Referenced-resources"] || "#"}" target="_blank" style="color:#8cffc6;">${found["Referenced-resources"] || "無"}</a></div>
+          <div class="placeholder-chat" style="margin-top:16px;">
+            這裡之後可以接上真正的聊天 UI。<br>
+            目前已成功載入這位角色的基本資料，<br>
+            你可以依 <code>Referenced-resources</code> 再去拉更多細節。
+          </div>
+        `;
+      } catch (err) {
+        console.error(err);
+        sbStatus.textContent = "載入失敗：連線錯誤";
+        sbStatus.classList.add("status-err");
+        mainBody.innerHTML = "<div class='info-line'>載入失敗，請檢查你的 GEX/GN/LNM.json 是否公開。</div>";
+      }
+    }
+
+    loadCharacter();
+  </script>
+</body>
+</html>
