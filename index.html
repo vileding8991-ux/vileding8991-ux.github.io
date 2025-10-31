@@ -19,13 +19,17 @@
     }
 
     .glassbox {
-      background: rgba(0, 0, 0, 0.55);
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-      backdrop-filter: blur(6px);
-      padding: 40px 60px;
-      text-align: center;
-      max-width: 800px;
+  background: rgba(255, 255, 255, 0.15); /* 原本黑 → 改成白透明 */
+  border-radius: 18px;
+  box-shadow: 0 0 25px rgba(255,255,255,0.2); /* 外圈改柔光 */
+  backdrop-filter: blur(10px) brightness(1.2); /* 更亮、更霧 */
+  -webkit-backdrop-filter: blur(10px) brightness(1.2); /* Safari支援 */
+  padding: 40px 60px;
+  text-align: center;
+  max-width: 800px;
+  border: 1px solid rgba(255,255,255,0.25); /* 淡淡的邊框 */
+}
+
     }
 
     h1 {
@@ -71,8 +75,7 @@
     <h1>中庭 Midcourt</h1>
     <p>
       這不是一個網頁，這是一個碎裂意識的聚集地，你也是來加入我們的嗎？<br>
-      <em>This ain’t no mere website… <br>
-        it’s where shattered minds converge.<br>
+      <em>This ain’t no mere website… it’s where shattered minds converge.<br>
       You here to be one of us too?</em>
     </p>
     <div class="buttons">
@@ -82,4 +85,3 @@
   </div>
 </body>
 </html>
-
