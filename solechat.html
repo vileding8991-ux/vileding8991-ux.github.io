@@ -9,7 +9,6 @@
     :root {
       --bg1: #1b1b1b;
       --bg2: #101820;
-      --panel: rgba(0,0,0,0.35);
       --ok: #5dffb0;
       --err: #ff6a6a;
     }
@@ -21,10 +20,12 @@
       color: #fff;
       font-family: "標楷體", "Times New Roman", serif;
     }
-    /* 左側狀態條 */
+    /* 左側狀態條 → 1/4 寬 */
     .sidebar {
-      width: 250px;
-      background: linear-gradient(160deg, rgba(0,0,0,0.7), rgba(0,0,0,0.1));
+      width: 22vw;
+      max-width: 300px;
+      min-width: 230px;
+      background: linear-gradient(160deg, rgba(0,0,0,0.7), rgba(0,0,0,0.05));
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
       padding: 16px 16px 14px;
@@ -76,48 +77,103 @@
       padding: 4px 10px;
       border-radius: 6px;
     }
-    /* 右側主區 */
-    .main {
+
+    /* 右側聊天區 → 3/4 寬 */
+    .chat-panel {
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
-    .main-header {
+    .chat-header {
       padding: 12px 18px;
       border-bottom: 1px solid rgba(255,255,255,0.03);
       background: radial-gradient(circle at 35% 40%, rgba(255,0,85,0.2) 0%, rgba(0,0,0,0) 45%);
     }
-    .main-header h2 {
+    .chat-header h2 {
       margin: 0;
       font-size: 1.1rem;
     }
-    .main-body {
+
+    .chat-body {
       flex: 1;
-      padding: 18px;
+      padding: 14px 16px 6px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
+      overflow-y: auto;
     }
-    .info-line {
-      font-size: 0.85rem;
-      opacity: 0.75;
+    .msg {
+      max-width: 68%;
+      padding: 8px 12px 9px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
-    .highlight {
-      color: #fff;
-      opacity: 1;
+    .msg.me {
+      align-self: flex-end;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
     }
-    .placeholder-chat {
-      margin-top: 16px;
-      border: 1px dashed rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 12px;
-      font-size: 0.78rem;
-      opacity: 0.6;
-    }
-    code {
+    .msg.npc {
+      align-self: flex-start;
       background: rgba(0,0,0,0.2);
-      padding: 1px 4px;
-      border-radius: 4px;
+      border: 1px solid rgba(255,0,85,0.2);
+    }
+    .msg-meta {
+      font-size: 0.65rem;
+      opacity: 0.5;
+      margin-bottom: 3px;
+    }
+
+    /* 輸入列 */
+    .chat-input-bar {
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 8px 12px 10px;
+      background: rgba(0,0,0,0.25);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .chat-textarea {
+      flex: 1;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.8rem;
+      min-height: 44px;
+      max-height: 130px;
+      padding: 6px 8px;
+      resize: vertical;
+      outline: none;
+    }
+    .send-btn {
+      background: #2bbf72;
+      border: none;
+      color: #000;
+      padding: 8px 15px 9px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .send-btn:hover {
+      background: #5cf5a2;
+    }
+    .hint {
+      font-size: 0.6rem;
+      opacity: 0.35;
+      position: absolute;
+      bottom: 6px;
+      right: 12px;
+    }
+    .input-wrapper {
+      position: relative;
+      flex: 1;
     }
   </style>
 </head>
@@ -152,68 +208,64 @@
     </div>
   </aside>
 
-  <main class="main">
-    <div class="main-header">
-      <h2 id="page-title">單人聊天</h2>
+  <section class="chat-panel">
+    <div class="chat-header">
+      <h2 id="chat-title">單人聊天</h2>
     </div>
-    <div class="main-body" id="main-body">
-      <div class="info-line">正在讀取角色資料…</div>
-      <div class="placeholder-chat">
-        這裡之後可以放你的聊天視窗。<br>
-        目前只做載入驗證：<br>
-        1. 讀 URL ?id=xxx&rank=yyy<br>
-        2. 去對應 JSON 找到這個角色<br>
-        3. 把名字 / race / referenced 資訊灌到左側狀態條
+    <div class="chat-body" id="chat-body">
+      <!-- 訊息會被塞進來 -->
+    </div>
+    <div class="chat-input-bar">
+      <div class="input-wrapper">
+        <textarea id="chat-input" class="chat-textarea" placeholder="輸入訊息…（Enter=送出，Shift+Enter=換行）"></textarea>
+        <div class="hint">Enter=送出 · Shift+Enter=換行</div>
       </div>
+      <button class="send-btn" id="send-btn">送出</button>
     </div>
-  </main>
+  </section>
 
   <script>
-    // 解析 URL 參數
+    // 1) 解析 URL
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
-    const rank = params.get("rank"); // 可能是 GEX / GN / LNM
+    const rank = params.get("rank");
 
-    // 左側欄
+    // 2) 取得 DOM
     const sbId = document.getElementById("sb-id");
     const sbZh = document.getElementById("sb-zh");
     const sbRace = document.getElementById("sb-race");
     const sbRef = document.getElementById("sb-ref");
     const sbStatus = document.getElementById("sb-status");
-    const pageTitle = document.getElementById("page-title");
-    const mainBody = document.getElementById("main-body");
+    const chatTitle = document.getElementById("chat-title");
+    const chatBody = document.getElementById("chat-body");
+    const chatInput = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("send-btn");
 
-    // 初始顯示 URL id
-    if (id) {
-      sbId.textContent = id;
-    }
+    if (id) sbId.textContent = id;
 
-    // 決定要抓哪一支 list
     function getListUrl(rank) {
       if (rank === "GEX") return "https://vileding8991-ux.github.io/GEX.json";
-      if (rank === "GN") return "https://vileding8991-ux.github.io/GN.json";
+      if (rank === "GN")  return "https://vileding8991-ux.github.io/GN.json";
       if (rank === "LNM") return "https://vileding8991-ux.github.io/LNM.json";
-      // 沒有 rank 的話，就全抓一次
       return null;
     }
 
+    // 3) 載入角色
     async function loadCharacter() {
       if (!id) {
         sbStatus.textContent = "沒有給 ID";
         sbStatus.classList.add("status-err");
-        mainBody.innerHTML = "<div class='info-line'>URL 沒有帶 <code>?id=</code>，無法載入角色。</div>";
+        addSystemMsg("URL 沒有帶 id，請回上一頁選角色。");
         return;
       }
 
       const singleUrl = getListUrl(rank);
-
       try {
         let lists = [];
         if (singleUrl) {
           const res = await fetch(singleUrl);
           lists = await res.json();
         } else {
-          // 沒給 rank → 三支全部抓
           const [gex, gn, lnm] = await Promise.all([
             fetch("https://vileding8991-ux.github.io/GEX.json").then(r => r.json()).catch(() => []),
             fetch("https://vileding8991-ux.github.io/GN.json").then(r => r.json()).catch(() => []),
@@ -222,12 +274,11 @@
           lists = [...gex, ...gn, ...lnm];
         }
 
-        // 找該角色
         const found = lists.find(item => item.ID === id);
         if (!found) {
           sbStatus.textContent = "載入失敗：找不到角色";
           sbStatus.classList.add("status-err");
-          mainBody.innerHTML = "<div class='info-line'>找不到這個 ID：<code>" + id + "</code>，請回上一頁重選。</div>";
+          addSystemMsg("找不到這個 ID：" + id + "，請回上一頁重選。");
           return;
         }
 
@@ -237,28 +288,57 @@
         sbRef.textContent = found["Referenced-resources"] || "—";
         sbStatus.textContent = "載入成功";
         sbStatus.classList.add("status-ok");
-        pageTitle.textContent = "單人聊天｜" + (found["ZH-Name"] || found.ID);
+        chatTitle.textContent = "單人聊天｜" + (found["ZH-Name"] || found.ID);
 
-        // 主區塊給個漂亮一點的資訊
-        mainBody.innerHTML = `
-          <div class="info-line">角色：<span class="highlight">${found["ZH-Name"] || "—"}</span> (${found["EN-Name"] || ""})</div>
-          <div class="info-line">ID：<code>${found.ID}</code>　Rank：<code>${found.Rank}</code></div>
-          <div class="info-line">Race：${found["Race"] || "—"}</div>
-          <div class="info-line">Data：<a href="${found["Referenced-resources"] || "#"}" target="_blank" style="color:#8cffc6;">${found["Referenced-resources"] || "無"}</a></div>
-          <div class="placeholder-chat" style="margin-top:16px;">
-            這裡之後可以接上真正的聊天 UI。<br>
-            目前已成功載入這位角色的基本資料，<br>
-            你可以依 <code>Referenced-resources</code> 再去拉更多細節。
-          </div>
-        `;
+        // 初始訊息
+        addNpcMsg(`這裡是 ${found["ZH-Name"] || found["EN-Name"] || found.ID}。資料已載入，你可以開始講話。`);
       } catch (err) {
         console.error(err);
         sbStatus.textContent = "載入失敗：連線錯誤";
         sbStatus.classList.add("status-err");
-        mainBody.innerHTML = "<div class='info-line'>載入失敗，請檢查你的 GEX/GN/LNM.json 是否公開。</div>";
+        addSystemMsg("載入失敗，請檢查 GEX/GN/LNM.json 是否公開。");
       }
     }
 
+    // 4) 聊天訊息 helper
+    function addMsg(text, who = "me") {
+      const wrap = document.createElement("div");
+      wrap.className = "msg " + who;
+      wrap.textContent = text;
+      chatBody.appendChild(wrap);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    function addNpcMsg(text) { addMsg(text, "npc"); }
+    function addSystemMsg(text) { addMsg("【系統】" + text, "npc"); }
+
+    // 5) 發送邏輯
+    function sendCurrent() {
+      const txt = chatInput.value.trim();
+      if (!txt) return;
+      addMsg(txt, "me");
+      chatInput.value = "";
+      // 這裡之後你可以改成真正 call 後端，現在先做 echo
+      setTimeout(() => {
+        addNpcMsg("（暫時回聲）你說的是：「" + txt + "」");
+      }, 200);
+    }
+
+    // Enter=送出，Shift+Enter=換行
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        if (e.shiftKey) {
+          // 換行
+          return;
+        } else {
+          e.preventDefault();
+          sendCurrent();
+        }
+      }
+    });
+
+    sendBtn.addEventListener("click", sendCurrent);
+
+    // 開始跑
     loadCharacter();
   </script>
 </body>
