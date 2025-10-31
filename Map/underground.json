@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 {
   "Type": "地底層",
   "Portals": [
@@ -10,16 +10,3 @@
   "Hazard-Level": "高"
 }
 
-=======
-{
-  "Type": "地底層",
-  "Portals": [
-    {"To": "浮島遊樂區", "Coordinates": [0, 0, -12]},
-    {"To": "中央中庭浮島", "Coordinates": [2, -6, -20]}
-  ],
-  "Description": "中庭最深層的結構。包含神經層、嘎嘎鼴鼠迷宮與主資料庫。莉亞在此管理記憶模組。",
-  "Residents": ["莉亞", "嘎嘎鼴鼠"],
-  "Hazard-Level": "高"
-}
-
->>>>>>> origin/root
