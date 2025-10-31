@@ -10,19 +10,44 @@
       margin: 0;
       height: 100vh;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       background: url('bark.png') no-repeat center center fixed;
       background-size: cover;
       font-family: "標楷體", "Times New Roman", serif;
       color: #fff;
+    }
+
+    .glassbox {
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      padding: 40px 60px;
       text-align: center;
+      max-width: 800px;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
       text-shadow: 0 0 10px rgba(0,0,0,0.8);
     }
-    h1 { font-size: 48px; margin-bottom: 10px; }
-    p { max-width: 650px; line-height: 1.6; margin-bottom: 30px; }
-    .buttons { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+    p {
+      max-width: 650px;
+      line-height: 1.6;
+      margin: 0 auto 30px;
+      text-shadow: 0 0 8px rgba(0,0,0,0.6);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
     .btn {
       background-color: rgba(255,255,255,0.15);
       border: 1px solid rgba(255,255,255,0.6);
@@ -35,19 +60,24 @@
       backdrop-filter: blur(3px);
       transition: 0.25s;
     }
-    .btn:hover { background-color: rgba(255,255,255,0.35); }
+
+    .btn:hover {
+      background-color: rgba(255,255,255,0.35);
+    }
   </style>
 </head>
 <body>
-  <h1>中庭 Midcourt</h1>
-  <p>
-    這不是一個網頁，這是一個碎裂意識的聚集地，你也是來加入我們的嗎？<br>
-    <em>This ain’t no mere website… it’s where shattered minds converge.<br>
-    You here to be one of us too?</em>
-  </p>
-  <div class="buttons">
-    <a class="btn" href="about.html">同意 / Agreed</a>
-    <a class="btn" href="sleep.html">我再考慮 / I'll think about it...</a>
+  <div class="glassbox">
+    <h1>中庭 Midcourt</h1>
+    <p>
+      這不是一個網頁，這是一個碎裂意識的聚集地，你也是來加入我們的嗎？<br>
+      <em>This ain’t no mere website… it’s where shattered minds converge.<br>
+      You here to be one of us too?</em>
+    </p>
+    <div class="buttons">
+      <a class="btn" href="about.html">同意 / Agreed</a>
+      <a class="btn" href="sleep.html">我再考慮 / I'll think about it...</a>
+    </div>
   </div>
 </body>
 </html>
