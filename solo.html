@@ -92,16 +92,12 @@
       border-radius: 999px;
       letter-spacing: 0.08em;
     }
-    /* NE 創角按鈕 */
     .new-entry {
       border: 1px dashed rgba(255,255,255,0.5);
       background: rgba(0,0,0,0.15);
       text-align: center;
       justify-content: center;
       gap: 6px;
-    }
-    .new-entry span {
-      display: block;
     }
     .new-entry .big {
       font-size: 1.15rem;
@@ -124,21 +120,21 @@
   </div>
 
   <div class="footer-note">
-    ※ 來源：<code>https://vileding8991-ux.github.io/character_index.json</code> ｜ DBO = 衍生/系統體，部分功能可能不開放直接會話。
+    ※ 來源：<code>/GEX.json</code>、<code>/GN.json</code>、<code>/LNM.json</code> ｜ DBO = 衍生/系統體
   </div>
 
   <script>
-    // 來源清單
-    const INDEX_URL = "https://vileding8991-ux.github.io/character_index.json";
-
+    const SOURCES = [
+      "https://vileding8991-ux.github.io/GEX.json",
+      "https://vileding8991-ux.github.io/GN.json",
+      "https://vileding8991-ux.github.io/LNM.json"
+    ];
     const container = document.getElementById("char-container");
 
-    // 產生單一卡片
     function createCard(entry) {
       const card = document.createElement("div");
       card.className = "char-card";
       card.onclick = () => {
-        // 導向單人聊天頁，帶ID跟Rank
         window.location.href = `solechat.html?id=${encodeURIComponent(entry.ID)}&rank=${encodeURIComponent(entry.Rank)}`;
       };
 
@@ -168,7 +164,6 @@
       return card;
     }
 
-    // 產生 NE 創角按鈕
     function createNewEntryCard() {
       const card = document.createElement("div");
       card.className = "char-card new-entry";
@@ -178,51 +173,56 @@
       const rank = document.createElement("div");
       rank.className = "char-rank";
       rank.textContent = "NE ｜ NEW ENTRY";
-
       const zh = document.createElement("div");
       zh.className = "char-zh big";
       zh.textContent = "新增角色";
-
       const en = document.createElement("div");
       en.className = "char-en";
       en.textContent = "Create / Register Character";
-
       card.appendChild(rank);
       card.appendChild(zh);
       card.appendChild(en);
       return card;
     }
 
-    // 抓資料
-    fetch(INDEX_URL)
-      .then(res => res.json())
-      .then(data => {
-        // 安全起見先排序一下，GEX → GN → LNM
-        const rankOrder = { "GEX": 1, "GN": 2, "LNM": 3 };
-        data.sort((a, b) => {
-          const ra = rankOrder[a.Rank] || 99;
-          const rb = rankOrder[b.Rank] || 99;
-          if (ra !== rb) return ra - rb;
-          return (a.ID || "").localeCompare(b.ID || "");
-        });
+    Promise.all(
+      SOURCES.map(url =>
+        fetch(url)
+          .then(r => r.json())
+          .catch(e => {
+            console.warn("讀取失敗：", url, e);
+            return [];
+          })
+      )
+    ).then(lists => {
+      // 合併三個清單
+      const all = lists.flat();
 
-        data.forEach(entry => {
-          const card = createCard(entry);
-          container.appendChild(card);
-        });
-
-        // 最後補 NE 創角卡
-        container.appendChild(createNewEntryCard());
-      })
-      .catch(err => {
-        console.error("載入中庭角色清單失敗：", err);
-        const errorDiv = document.createElement("div");
-        errorDiv.style.color = "#fff";
-        errorDiv.textContent = "載入角色清單失敗，請確認 character_index.json 是否已上傳。";
-        container.appendChild(errorDiv);
-        // 但還是給一個 NE 讓你能創角
-        container.appendChild(createNewEntryCard());
+      // 排序：GEX → GN → LNM
+      const rankOrder = { "GEX": 1, "GN": 2, "LNM": 3 };
+      all.sort((a, b) => {
+        const ra = rankOrder[a.Rank] || 99;
+        const rb = rankOrder[b.Rank] || 99;
+        if (ra !== rb) return ra - rb;
+        return (a.ID || "").localeCompare(b.ID || "");
       });
+
+      all.forEach(entry => {
+        const card = createCard(entry);
+        container.appendChild(card);
+      });
+
+      // 補 NE
+      container.appendChild(createNewEntryCard());
+    }).catch(err => {
+      console.error("載入中庭角色清單失敗：", err);
+      const errorDiv = document.createElement("div");
+      errorDiv.style.color = "#fff";
+      errorDiv.textContent = "載入角色清單失敗，請確認 GEX.json / GN.json / LNM.json 是否已上傳。";
+      container.appendChild(errorDiv);
+      container.appendChild(createNewEntryCard());
+    });
   </script>
 </body>
 </html>
+
