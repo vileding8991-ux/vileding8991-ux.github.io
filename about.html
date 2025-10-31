@@ -18,43 +18,40 @@
       color: #fff;
     }
 
-.glassbox {
-  background: rgba(43, 43, 43, 0.25); /* 灰偏黑、透明度25% */
-  border-radius: 18px;
-  box-shadow: 0 0 25px rgba(53, 53, 53, 0.3);
-  backdrop-filter: blur(2px) brightness(1);
-  -webkit-backdrop-filter: blur(2px) brightness(1);
-  padding: 40px 60px;
-  text-align: center;
-  max-width: 800px;
-  border: 1px solid rgba(255, 255, 255, 0.15); /* 加點亮邊線 */
-}
-<div class="button-container">
-  <a href="solo.html">單人聊天</a>
-  <a href="group.html">群體聊天</a>
-</div>
-.button-container {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 25px;
-}
+    .glassbox {
+      background: rgba(43, 43, 43, 0.25); /* 灰偏黑、透明度25% */
+      border-radius: 18px;
+      box-shadow: 0 0 25px rgba(53, 53, 53, 0.3);
+      backdrop-filter: blur(2px) brightness(1);
+      -webkit-backdrop-filter: blur(2px) brightness(1);
+      padding: 40px 60px;
+      text-align: center;
+      max-width: 800px;
+      border: 1px solid rgba(255, 255, 255, 0.15); /* 加點亮邊線 */
+    }
 
-.button-container a {
-  font-size: 18px;
-  border: 1px solid rgba(255,255,255,0.5);
-  background: rgba(255,255,255,0.1);
-  padding: 10px 25px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
 
-.button-container a:hover {
-  background: rgba(255,255,255,0.35);
-  transform: scale(1.05);
-}
-}
+    .button-container a {
+      font-size: 18px;
+      border: 1px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.1);
+      padding: 10px 25px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      color: #fff;
+      text-decoration: none;
+    }
 
+    .button-container a:hover {
+      background: rgba(255,255,255,0.35);
+      transform: scale(1.05);
+    }
 
     h1 {
       font-size: 42px;
@@ -69,7 +66,7 @@
       text-shadow: 0 0 8px rgba(0,0,0,0.6);
     }
 
-    a {
+    a.main-link {
       color: #fff;
       text-decoration: none;
       border: 1px solid rgba(255,255,255,0.6);
@@ -80,7 +77,9 @@
       transition: 0.25s;
     }
 
-    a:hover { background: rgba(255,255,255,0.35); }
+    a.main-link:hover {
+      background: rgba(255,255,255,0.35);
+    }
   </style>
 </head>
 <body>
@@ -91,9 +90,14 @@
       它會根據訪客的情緒狀態與語言節奏重排顯示層——所以你現在看到的版本，只是它暫時相信你能理解的樣子。<br>
       有些門會在夢裡才打開。
     </p>
-    <a href="index.html">← 回到入口</a>
+
+    <div class="button-container">
+      <a href="solo.html">單人聊天</a>
+      <a href="group.html">群體聊天</a>
+    </div>
+
+    <a href="index.html" class="main-link">回到入口</a>
   </div>
 </body>
-
 </html>
 
