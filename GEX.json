@@ -79,38 +79,6 @@
     "EN-Name": "Mordyn Valtros",
     "Race": "獸化人／SAS戰士",
     "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-000101-MORDEN.json"
-  },
-  {
-    "Rank": "GEX",
-    "ID": "GEX-B-SELENE-000086",
-    "ZH-Name": "瑞卡",
-    "EN-Name": "Selene Rika Nirod",
-    "Race": "人類／戰術指揮官",
-    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-SELENE-000086.json"
-  },
-  {
-    "Rank": "GEX",
-    "ID": "GEX-B-GHOST-000051",
-    "ZH-Name": "幽靈",
-    "EN-Name": "Simon Ghost Riley",
-    "Race": "人類／特戰上尉",
-    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-GHOST-000051.json"
-  },
-  {
-    "Rank": "GEX",
-    "ID": "GEX-B-SANIEL-000085",
-    "ZH-Name": "薩尼爾",
-    "EN-Name": "Saniel Nirod",
-    "Race": "人類／軍人",
-    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-SANIEL-000085.json"
-  },
-  {
-    "Rank": "GEX",
-    "ID": "GEX-B-TITAN-000044",
-    "ZH-Name": "莫丁",
-    "EN-Name": "Mordyn \"Titan\" Valtros",
-    "Race": "獸化人／戰士",
-    "Referenced-resources": "https://vileding8991-ux.github.io/Role/GEX-B-TITAN-000044.json"
   }
 ]
 
