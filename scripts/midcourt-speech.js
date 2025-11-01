@@ -54,7 +54,7 @@ async function talkAsCharacter(charData, userMessage) {
   const systemPrompt = buildCharacterSystemPrompt(charData);
 
   // 向本機 Ollama 發出請求
-  const resp = await fetch("http://localhost:11434/api/generate", {
+  const resp = await fetch("http://localhost:5001/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
