@@ -440,7 +440,43 @@
         addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}。資料已載入，你可以開始講話。（/help 看指令）`);
       }
     })();
+
+    let currentCharacter = null; // 記錄目前選擇的角色
+
+// 當使用者按下送出訊息
+async function sendMessage() {
+  const input = document.getElementById("chat-input");
+  const text = input.value.trim();
+  if (!text) return; // 空白不發送
+  appendUserBubble(text); // 在畫面上先顯示你的訊息
+  input.value = "";
+
+  if (!currentCharacter) {
+    appendCharBubble("（系統）你還沒選角色。");
+    return;
+  }
+
+  try {
+    const reply = await talkAsCharacter(currentCharacter, text);
+    appendCharBubble(reply);
+  } catch (err) {
+    appendCharBubble("（中庭暫時失聯：Ollama沒回應）");
+    console.error(err);
+  }
+}
+
+// 選角後載入角色資料
+async function loadCharacterById(id) {
+  const res = await fetch(`Role/${id}.json`);
+  const data = await res.json();
+  currentCharacter = data;
+  document.getElementById("current-char-name").textContent =
+    data.DBO["ZH-Name"] || data.ID;
+}
+
   </script>
+  <script src="scripts/midcourt-speech.js"></script>
+
 </body>
 </html>
 
