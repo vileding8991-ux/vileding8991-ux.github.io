@@ -242,240 +242,266 @@
       <button class="send-btn" id="send-btn">送出</button>
     </div>
   </section>
+<!-- 先載入會跟 Ollama 講話的工具 -->
+<script src="scripts/midcourt-speech.js"></script>
 
-  <script>
-    const USER = {
-      id: "LOCAL-USER",
-      name: "來訪者",
-      mood: "neutral",
-      context: [],
-    };
-    let CHAR = {
-      id: null,
-      zh: null,
-      en: null,
-      race: null,
-      ref: null,
-      rank: null,
-    };
+<script>
+// =============== 使用者與角色的暫存 ===============
+const USER = {
+  id: "LOCAL-USER",          // 你可以之後做登入再換這裡
+  name: "來訪者",
+  mood: "neutral",
+  context: [],               // 之後要做上下文可以塞進來
+};
 
-    const params = new URLSearchParams(window.location.search);
-    const urlId = params.get("id");
-    const urlRank = params.get("rank");
+let CHAR = null;             // 這裡放「從 GitHub 抓到的那隻角色」
+let CHAR_FULL = null;        // 這裡放「從 /Role/xxx.json 抓到的完整角卡」（給 Ollama 用）
 
-    const sbId    = document.getElementById("sb-id");
-    const sbZh    = document.getElementById("sb-zh");
-    const sbRace  = document.getElementById("sb-race");
-    const sbRef   = document.getElementById("sb-ref");
-    const sbStatus= document.getElementById("sb-status");
-    const chatTitle = document.getElementById("chat-title");
-    const chatBody  = document.getElementById("chat-body");
-    const chatInput = document.getElementById("chat-input");
-    const sendBtn   = document.getElementById("send-btn");
+// =============== 抓 DOM 元素 ===============
+const params     = new URLSearchParams(window.location.search);
+const urlId      = params.get("id");
+const urlRank    = params.get("rank");
 
-    if (urlId) sbId.textContent = urlId;
+const sbId       = document.getElementById("sb-id");
+const sbZh       = document.getElementById("sb-zh");
+const sbRace     = document.getElementById("sb-race");
+const sbRef      = document.getElementById("sb-ref");
+const sbStatus   = document.getElementById("sb-status");
+const chatTitle  = document.getElementById("chat-title");
+const chatBody   = document.getElementById("chat-body");
+const chatInput  = document.getElementById("chat-input");
+const sendBtn    = document.getElementById("send-btn");
 
-    function getListUrl(rank) {
-      if (rank === "GEX") return "https://vileding8991-ux.github.io/GEX.json";
-      if (rank === "GN")  return "https://vileding8991-ux.github.io/GN.json";
-      if (rank === "LNM") return "https://vileding8991-ux.github.io/LNM.json";
+// 進來的時候，如果網址有帶 id，先顯示
+if (urlId) sbId.textContent = urlId;
+
+// =============== 幫 rank 找正確的 JSON 來源 ===============
+function getListUrl(rank) {
+  // 這邊你用的是 GitHub Pages 的三份清單
+  if (rank === "GEX") return "https://vileding8991-ux.github.io/GEX.json";
+  if (rank === "GN")  return "https://vileding8991-ux.github.io/GN.json";
+  if (rank === "LNM") return "https://vileding8991-ux.github.io/LNM.json";
+  return null;
+}
+
+// =============== 載入角色（清單 → 左欄顯示） ===============
+// 這個是「先去你的 GEX/GN/LNM.json 找這個 ID」
+async function loadCharacterByIdFromList(id, rank) {
+  const singleUrl = getListUrl(rank); // 如果網址有 rank 就先抓它
+
+  try {
+    let lists = [];
+    if (singleUrl) {
+      // 有指定來源（例如 GEX）就抓那份
+      const res = await fetch(singleUrl);
+      lists = await res.json();
+    } else {
+      // 沒指定就三份一起抓，然後合起來找
+      const [gex, gn, lnm] = await Promise.all([
+        fetch("https://vileding8991-ux.github.io/GEX.json").then(r => r.json()).catch(() => []),
+        fetch("https://vileding8991-ux.github.io/GN.json").then(r => r.json()).catch(() => []),
+        fetch("https://vileding8991-ux.github.io/LNM.json").then(r => r.json()).catch(() => [])
+      ]);
+      lists = [...gex, ...gn, ...lnm];
+    }
+
+    // 在全部角色裡面找那個 ID
+    const found = lists.find(item => item.ID === id);
+    if (!found) {
+      sbStatus.textContent = "載入失敗：找不到角色";
+      sbStatus.classList.add("status-err");
+      addSystemMsg("找不到這個 ID：" + id);
       return null;
     }
 
-    async function loadCharacterById(id, rank) {
-      const singleUrl = getListUrl(rank);
-      try {
-        let lists = [];
-        if (singleUrl) {
-          const res = await fetch(singleUrl);
-          lists = await res.json();
-        } else {
-          const [gex, gn, lnm] = await Promise.all([
-            fetch("https://vileding8991-ux.github.io/GEX.json").then(r => r.json()).catch(() => []),
-            fetch("https://vileding8991-ux.github.io/GN.json").then(r => r.json()).catch(() => []),
-            fetch("https://vileding8991-ux.github.io/LNM.json").then(r => r.json()).catch(() => [])
-          ]);
-          lists = [...gex, ...gn, ...lnm];
+    // 這個是「清單版」的角色，欄位比較少
+    CHAR = {
+      id:   found.ID,
+      zh:   found["ZH-Name"] || "",
+      en:   found["EN-Name"] || "",
+      race: found["Race"] || "",
+      ref:  found["Referenced-resources"] || "",
+      rank: found["Rank"] || rank || "",
+    };
+
+    // 左邊欄位更新
+    sbId.textContent    = CHAR.id || "—";
+    sbZh.textContent    = CHAR.zh || "—";
+    sbRace.textContent  = CHAR.race || "—";
+    sbRef.textContent   = CHAR.ref || "—";
+    sbStatus.textContent = "載入成功";
+    sbStatus.classList.remove("status-err");
+    sbStatus.classList.add("status-ok");
+    chatTitle.textContent = "單人聊天｜" + (CHAR.zh || CHAR.id);
+
+    return CHAR;
+  } catch (err) {
+    console.error(err);
+    sbStatus.textContent = "載入失敗：連線錯誤";
+    sbStatus.classList.add("status-err");
+    addSystemMsg("載入失敗，請檢查 GEX/GN/LNM.json 是否公開。");
+    return null;
+  }
+}
+
+// =============== 再載一次「真正的角色卡」給 Ollama 用 ===============
+async function loadFullRoleJson(charId) {
+  // GitHub Pages 上你是放在 /Role/{id}.json
+  // 這個是「詳細版」有 Profile / Behavior / Relations 的
+  try {
+    const res = await fetch(`https://vileding8991-ux.github.io/Role/${charId}.json`);
+    if (!res.ok) throw new Error("role not found");
+    const data = await res.json();
+    CHAR_FULL = data; // 這個丟給 talkAsCharacter 用
+  } catch (err) {
+    console.warn("載入角色詳細資料失敗，改用清單版：" + err.message);
+    CHAR_FULL = null;
+  }
+}
+
+// =============== 畫面顯示訊息的工具 ===============
+function addMsg(text, who = "me") {
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + who;
+  wrap.textContent = text;
+  chatBody.appendChild(wrap);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+function addNpcMsg(text)   { addMsg(text, "npc"); }
+function addSystemMsg(text){ addMsg("【系統】" + text, "npc"); }
+
+// =============== 指令處理（/help /char ...） ===============
+async function handleCommand(input) {
+  const parts = input.trim().split(/\s+/);
+  const cmd   = parts.shift().toLowerCase();
+
+  switch (cmd) {
+    case "/help":
+      addSystemMsg([
+        "指令：",
+        "/help → 顯示指令",
+        "/user → 查看當前使用者",
+        "/char → 查看當前角色",
+        "/char <ID> → 載入指定角色",
+        "/stop → 清除畫面"
+      ].join("\n"));
+      break;
+    case "/user":
+      addSystemMsg("使用者：" + USER.name + "（" + USER.id + "），mood=" + USER.mood);
+      break;
+    case "/char":
+      if (parts[0]) {
+        const targetId = parts[0];
+        addSystemMsg("嘗試載入角色：" + targetId);
+        const loaded = await loadCharacterByIdFromList(targetId, null);
+        if (loaded) {
+          await loadFullRoleJson(loaded.id); // 順便抓詳細版
+          addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}，我已接管這個頻道。`);
         }
-
-        const found = lists.find(item => item.ID === id);
-        if (!found) {
-          sbStatus.textContent = "載入失敗：找不到角色";
-          sbStatus.classList.add("status-err");
-          addSystemMsg("找不到這個 ID：" + id);
-          return null;
-        }
-
-        CHAR = {
-          id: found.ID,
-          zh: found["ZH-Name"] || "",
-          en: found["EN-Name"] || "",
-          race: found["Race"] || "",
-          ref: found["Referenced-resources"] || "",
-          rank: found["Rank"] || rank || "",
-        };
-
-        sbId.textContent = CHAR.id || "—";
-        sbZh.textContent = CHAR.zh || "—";
-        sbRace.textContent = CHAR.race || "—";
-        sbRef.textContent = CHAR.ref || "—";
-        sbStatus.textContent = "載入成功";
-        sbStatus.classList.remove("status-err");
-        sbStatus.classList.add("status-ok");
-        chatTitle.textContent = "單人聊天｜" + (CHAR.zh || CHAR.id);
-        return CHAR;
-      } catch (err) {
-        console.error(err);
-        sbStatus.textContent = "載入失敗：連線錯誤";
-        sbStatus.classList.add("status-err");
-        addSystemMsg("載入失敗，請檢查 GEX/GN/LNM.json 是否公開。");
-        return null;
+      } else {
+        if (!CHAR) addSystemMsg("目前還沒有載入任何角色。");
+        else addSystemMsg(`目前角色：${CHAR.id} / ${CHAR.zh} / ${CHAR.race}`);
       }
-    }
+      break;
+    case "/stop":
+      chatBody.innerHTML = "";
+      addSystemMsg("畫面已清除。");
+      break;
+    default:
+      addSystemMsg("未知指令：" + cmd + "（/help 看可用指令）");
+  }
+}
 
-    function addMsg(text, who = "me") {
-      const wrap = document.createElement("div");
-      wrap.className = "msg " + who;
-      wrap.textContent = text;
-      chatBody.appendChild(wrap);
-      chatBody.scrollTop = chatBody.scrollHeight;
-    }
-    function addNpcMsg(text)   { addMsg(text, "npc"); }
-    function addSystemMsg(text){ addMsg("【系統】" + text, "npc"); }
+// =============== 把 {USER} / {CHAR} 這些字換掉 ===============
+function replacePlaceholders(text) {
+  return text
+    .replace(/\{USER\.name\}/g, USER.name)
+    .replace(/\{USER\.id\}/g, USER.id)
+    .replace(/\{CHAR\.name\}/g, (CHAR && (CHAR.zh || CHAR.en || CHAR.id)) || "")
+    .replace(/\{CHAR\.id\}/g, (CHAR && CHAR.id) || "")
+    .replace(/\{CHAR\.race\}/g, (CHAR && CHAR.race) || "");
+}
 
-    async function handleCommand(input) {
-      const parts = input.trim().split(/\s+/);
-      const cmd = parts.shift().toLowerCase();
+// =============== 送出訊息（這是你原本的，但我幫你接到 Ollama） ===============
+async function sendCurrent() {
+  const raw = chatInput.value;
+  const txt = raw.trim();
+  if (!txt) return;
 
-      switch (cmd) {
-        case "/help":
-          addSystemMsg([
-            "指令：",
-            "/help → 顯示指令",
-            "/user → 查看當前使用者",
-            "/char → 查看當前角色",
-            "/char <ID> → 載入指定角色（會自動從三檔找）",
-            "/prompt → 顯示當前上下文",
-            "/stop → 清除畫面訊息",
-          ].join("\n"));
-          break;
-        case "/user":
-          addSystemMsg("使用者：" + USER.name + "（" + USER.id + "），mood=" + USER.mood);
-          break;
-        case "/char":
-          if (parts[0]) {
-            const targetId = parts[0];
-            addSystemMsg("嘗試載入角色：" + targetId);
-            const loaded = await loadCharacterById(targetId, null);
-            if (loaded) addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}，我已接管這個頻道。`);
-          } else {
-            if (!CHAR.id) addSystemMsg("目前還沒有載入任何角色。");
-            else addSystemMsg(`目前角色：${CHAR.id} / ${CHAR.zh} / ${CHAR.race}`);
-          }
-          break;
-        case "/prompt":
-          addSystemMsg("當前上下文：" + JSON.stringify(USER.context));
-          break;
-        case "/stop":
-          chatBody.innerHTML = "";
-          addSystemMsg("畫面已清除。");
-          break;
-        default:
-          addSystemMsg("未知指令：" + cmd + "（/help 看可用指令）");
-      }
-    }
-
-    function replacePlaceholders(text) {
-      return text
-        .replace(/\{USER\.name\}/g, USER.name)
-        .replace(/\{USER\.id\}/g, USER.id)
-        .replace(/\{CHAR\.name\}/g, CHAR.zh || CHAR.en || CHAR.id || "")
-        .replace(/\{CHAR\.id\}/g, CHAR.id || "")
-        .replace(/\{CHAR\.race\}/g, CHAR.race || "");
-    }
-
-    function sendCurrent() {
-      const raw = chatInput.value;
-      const txt = raw.trim();
-      if (!txt) return;
-
-      if (txt.startsWith("/")) {
-        addMsg(txt, "me");
-        chatInput.value = "";
-        handleCommand(txt);
-        return;
-      }
-
-      const final = replacePlaceholders(txt);
-      addMsg(final, "me");
-      chatInput.value = "";
-
-      setTimeout(() => {
-        const name = CHAR.zh || CHAR.en || CHAR.id || "該角色";
-        addNpcMsg(`[${name}] 收到了你的訊息：${final}`);
-      }, 200);
-    }
-
-    chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        if (e.shiftKey) {
-          return;
-        } else {
-          e.preventDefault();
-          sendCurrent();
-        }
-      }
-    });
-    sendBtn.addEventListener("click", sendCurrent);
-
-    (async function init() {
-      if (!urlId) {
-        sbStatus.textContent = "沒有給 ID";
-        sbStatus.classList.add("status-err");
-        addSystemMsg("URL 沒有帶 id，請回上一頁選角色。");
-        return;
-      }
-      const loaded = await loadCharacterById(urlId, urlRank);
-      if (loaded) {
-        addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}。資料已載入，你可以開始講話。（/help 看指令）`);
-      }
-    })();
-
-    let currentCharacter = null; // 記錄目前選擇的角色
-
-// 當使用者按下送出訊息
-async function sendMessage() {
-  const input = document.getElementById("chat-input");
-  const text = input.value.trim();
-  if (!text) return; // 空白不發送
-  appendUserBubble(text); // 在畫面上先顯示你的訊息
-  input.value = "";
-
-  if (!currentCharacter) {
-    appendCharBubble("（系統）你還沒選角色。");
+  // 1) 先看是不是指令
+  if (txt.startsWith("/")) {
+    addMsg(txt, "me");
+    chatInput.value = "";
+    await handleCommand(txt);
     return;
   }
 
+  // 2) 一般訊息 → 先顯示使用者說的
+  const final = replacePlaceholders(txt);
+  addMsg(final, "me");
+  chatInput.value = "";
+
+  // 3) 沒有載入角色就不用叫 Ollama
+  if (!CHAR) {
+    addNpcMsg("（系統）你還沒載入角色。先回上一頁選一隻。");
+    return;
+  }
+
+  // 4) 如果有詳細角色卡，就用它；沒有就用清單版包一個
+  const charData = CHAR_FULL ? CHAR_FULL : {
+    ID: CHAR.id,
+    DBO: {
+      "ZH-Name": CHAR.zh,
+      "EN-Name": CHAR.en,
+      "Rank": CHAR.rank,
+      "Race": CHAR.race,
+      "Gender": "中性"
+    },
+    Profile: {
+      "性格": "中庭一般角色，語氣友好。",
+      "常會說的話": []
+    }
+  };
+
+  // 5) 呼叫 Ollama（走你前面開好的 proxy / 或直連 11434 的那版）
   try {
-    const reply = await talkAsCharacter(currentCharacter, text);
-    appendCharBubble(reply);
+    const reply = await talkAsCharacter(charData, final);
+    addNpcMsg(reply);
   } catch (err) {
-    appendCharBubble("（中庭暫時失聯：Ollama沒回應）");
     console.error(err);
+    addNpcMsg("（中庭暫時失聯：無法連到語言核心）");
   }
 }
 
-// 選角後載入角色資料
-async function loadCharacterById(id) {
-  const res = await fetch(`Role/${id}.json`);
-  const data = await res.json();
-  currentCharacter = data;
-  document.getElementById("current-char-name").textContent =
-    data.DBO["ZH-Name"] || data.ID;
-}
+// =============== 綁定 Enter / 按鈕 ===============
+chatInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    if (e.shiftKey) {
+      return;  // Shift+Enter 換行
+    } else {
+      e.preventDefault();
+      sendCurrent();
+    }
+  }
+});
+sendBtn.addEventListener("click", sendCurrent);
 
-  </script>
-  <script src="scripts/midcourt-speech.js"></script>
+// =============== 一進來就載入網址給的角色 ===============
+(async function init() {
+  if (!urlId) {
+    sbStatus.textContent = "沒有給 ID";
+    sbStatus.classList.add("status-err");
+    addSystemMsg("URL 沒有帶 id，請回上一頁選角色。");
+    return;
+  }
+  const loaded = await loadCharacterByIdFromList(urlId, urlRank);
+  if (loaded) {
+    // 抓詳細版給 Ollama 用
+    await loadFullRoleJson(loaded.id);
+    addNpcMsg(`這裡是 ${loaded.zh || loaded.en || loaded.id}。資料已載入，你可以開始講話。（/help 看指令）`);
+  }
+})();
+</script>
 
 </body>
 </html>
